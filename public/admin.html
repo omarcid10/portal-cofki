@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal Cofki · Administrar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Montserrat+Alternates:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --candy:#FF5252;
+    --jungle:#00BFA5;
+    --honey:#FFA726;
+    --butter:#FFD180;
+    --elephant:#424242;
+    --seal:#757575;
+    --pastel-red:#FFCDD2;
+    --pastel-teal:#B3E0DC;
+    --pastel-orange:#FFE0B2;
+    --light-gray:#F4F4F4;
+    --border:#E6E6E6;
+    --ok:#00BFA5;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    min-height:100vh;
+    font-family:'Montserrat', sans-serif;
+    background:#FAFAFA;
+    color:var(--elephant);
+  }
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:20px 40px;
+    background:#fff;
+    border-bottom:1px solid var(--border);
+  }
+  .brand{
+    font-family:'Montserrat Alternates', sans-serif;
+    font-weight:800;
+    font-size:17px;
+  }
+  a.back{ color:var(--seal); font-size:13px; font-weight:600; text-decoration:none; }
+  a.back:hover{ color:var(--elephant); }
+  main{
+    max-width:620px;
+    margin:0 auto;
+    padding:44px 40px 80px;
+  }
+  h1{ font-family:'Montserrat Alternates', sans-serif; font-size:24px; font-weight:800; margin:0 0 6px; }
+  .sub{ color:var(--seal); font-size:14px; margin:0 0 32px; line-height:1.5; }
+  .tier-card{
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:22px;
+    margin-bottom:16px;
+  }
+  .tier-card.equipo{ border-left:4px solid var(--jungle); }
+  .tier-card.gerentes{ border-left:4px solid var(--honey); }
+  .tier-card.socios{ border-left:4px solid var(--candy); }
+  .tier-name{
+    font-weight:700;
+    font-size:15px;
+    margin:0 0 4px;
+    text-transform:capitalize;
+  }
+  .tier-updated{
+    font-size:12px;
+    color:var(--seal);
+    margin:0 0 16px;
+  }
+  .row{ display:flex; gap:10px; }
+  input[type=text]{
+    flex:1;
+    padding:11px 12px;
+    border-radius:8px;
+    border:1.5px solid var(--border);
+    background:var(--light-gray);
+    color:var(--elephant);
+    font-size:14px;
+    font-family:inherit;
+    outline:none;
+  }
+  input[type=text]:focus{ border-color:var(--jungle); background:#fff; }
+  button{
+    padding:11px 16px;
+    border-radius:8px;
+    border:none;
+    background:var(--jungle);
+    color:#fff;
+    font-weight:700;
+    font-size:13.5px;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  button:hover{ filter:brightness(1.06); }
+  button:disabled{ opacity:0.6; cursor:default; }
+  .msg{ font-size:12.5px; margin-top:10px; min-height:14px; font-weight:600; }
+  .msg.ok{ color:var(--jungle); }
+  .msg.err{ color:var(--candy); }
+  .denied{ text-align:center; padding:80px 0; color:var(--seal); }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">Portal Cofki</div>
+  <a class="back" href="/portal.html">← Volver al portal</a>
+</header>
+<main id="main">
+  <div class="denied">Verificando acceso...</div>
+</main>
+
+<script>
+const TIERS = ['socios', 'gerentes', 'equipo'];
+const TIER_DESC = {
+  socios: 'Tú y tu socio',
+  gerentes: 'Gerentes del equipo',
+  equipo: 'Cualquiera del equipo',
+};
+
+async function init() {
+  const main = document.getElementById('main');
+  const res = await fetch('/api/apps');
+  if (res.status === 401) {
+    window.location.href = '/index.html';
+    return;
+  }
+  const data = await res.json();
+  if (data.role !== 'socios') {
+    main.innerHTML = '<div class="denied">Esta sección es solo para socios.</div>';
+    return;
+  }
+
+  main.innerHTML = `
+    <h1>Administrar contraseñas</h1>
+    <p class="sub">Cambia la contraseña de cualquier nivel. Se aplica de inmediato — quien tenga la contraseña anterior deja de poder entrar con ella.</p>
+    <div id="tiers"></div>
+  `;
+
+  const tiersEl = document.getElementById('tiers');
+  tiersEl.innerHTML = TIERS.map(tier => `
+    <div class="tier-card ${tier}">
+      <p class="tier-name">${tier}</p>
+      <p class="tier-updated">${TIER_DESC[tier]}</p>
+      <div class="row">
+        <input type="text" id="pw-${tier}" placeholder="Nueva contraseña (mín. 8 caracteres)">
+        <button data-tier="${tier}">Actualizar</button>
+      </div>
+      <p class="msg" id="msg-${tier}"></p>
+    </div>
+  `).join('');
+
+  tiersEl.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', () => updatePassword(btn.dataset.tier));
+  });
+}
+
+async function updatePassword(tier) {
+  const input = document.getElementById(`pw-${tier}`);
+  const msg = document.getElementById(`msg-${tier}`);
+  const btn = document.querySelector(`button[data-tier="${tier}"]`);
+  const newPassword = input.value;
+
+  msg.textContent = '';
+  msg.className = 'msg';
+
+  if (newPassword.length < 8) {
+    msg.textContent = 'Mínimo 8 caracteres.';
+    msg.className = 'msg err';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Guardando...';
+
+  try {
+    const res = await fetch('/api/change-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tier, newPassword }),
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      msg.textContent = data.error || 'Error al actualizar';
+      msg.className = 'msg err';
+    } else {
+      msg.textContent = 'Actualizada correctamente.';
+      msg.className = 'msg ok';
+      input.value = '';
+    }
+  } catch (err) {
+    msg.textContent = 'Error de conexión.';
+    msg.className = 'msg err';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Actualizar';
+  }
+}
+
+init();
+</script>
+</body>
+</html>

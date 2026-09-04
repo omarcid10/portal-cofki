@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal Cofki · Acceso</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Montserrat+Alternates:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --candy:#FF5252;
+    --jungle:#00BFA5;
+    --honey:#FFA726;
+    --butter:#FFD180;
+    --elephant:#424242;
+    --seal:#757575;
+    --pastel-red:#FFCDD2;
+    --pastel-teal:#B3E0DC;
+    --pastel-orange:#FFE0B2;
+    --light-gray:#F4F4F4;
+    --border:#E6E6E6;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family:'Montserrat', sans-serif;
+    background:#FAFAFA;
+    color:var(--elephant);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:100vh;
+    padding:24px;
+    position:relative;
+    overflow:hidden;
+  }
+  .confetti{
+    position:fixed;
+    border-radius:50%;
+    opacity:0.5;
+  }
+  .card{
+    width:100%;
+    max-width:400px;
+    background:#FFFFFF;
+    border:1px solid var(--border);
+    border-radius:18px;
+    padding:44px 36px 36px;
+    box-shadow:0 24px 60px -30px rgba(66,66,66,0.25);
+    position:relative;
+    z-index:1;
+  }
+  .logo{
+    display:block;
+    height:64px;
+    margin:0 auto 24px;
+  }
+  .mark{
+    display:flex;
+    justify-content:center;
+    gap:8px;
+    margin-bottom:20px;
+  }
+  .mark span{
+    height:5px;
+    width:28px;
+    border-radius:3px;
+  }
+  .mark span:nth-child(1){background:var(--jungle);}
+  .mark span:nth-child(2){background:var(--honey);}
+  .mark span:nth-child(3){background:var(--candy);}
+  h1{
+    font-family:'Montserrat Alternates', sans-serif;
+    font-weight:800;
+    font-size:22px;
+    letter-spacing:0.1px;
+    margin:0 0 6px;
+    text-align:center;
+    color:var(--elephant);
+  }
+  .sub{
+    color:var(--seal);
+    font-size:13.5px;
+    margin:0 0 28px;
+    line-height:1.5;
+    text-align:center;
+  }
+  label{
+    display:block;
+    font-size:11.5px;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--seal);
+    margin-bottom:8px;
+    font-weight:700;
+  }
+  input[type=password]{
+    width:100%;
+    padding:13px 14px;
+    border-radius:10px;
+    border:1.5px solid var(--border);
+    background:var(--light-gray);
+    color:var(--elephant);
+    font-size:15px;
+    font-family:inherit;
+    outline:none;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  input[type=password]:focus{
+    border-color:var(--jungle);
+    background:#fff;
+  }
+  button{
+    width:100%;
+    margin-top:20px;
+    padding:13px 14px;
+    border-radius:10px;
+    border:none;
+    background:var(--jungle);
+    color:#fff;
+    font-weight:700;
+    font-size:14.5px;
+    cursor:pointer;
+    transition:filter .15s ease, transform .1s ease;
+  }
+  button:hover{filter:brightness(1.06);}
+  button:active{transform:scale(0.99);}
+  button:disabled{opacity:0.6; cursor:default;}
+  .error{
+    color:var(--candy);
+    font-size:13px;
+    margin-top:14px;
+    min-height:16px;
+    text-align:center;
+    font-weight:600;
+  }
+  .foot{
+    margin-top:28px;
+    padding-top:18px;
+    border-top:1px solid var(--border);
+    font-size:11.5px;
+    color:var(--seal);
+    text-align:center;
+    letter-spacing:0.03em;
+  }
+</style>
+</head>
+<body>
+  <svg class="confetti" style="top:8%; left:6%; width:10px; height:10px; background:var(--pastel-red);"></svg>
+  <svg class="confetti" style="top:18%; right:10%; width:14px; height:14px; background:var(--pastel-teal);"></svg>
+  <svg class="confetti" style="bottom:14%; left:12%; width:12px; height:12px; background:var(--pastel-orange);"></svg>
+  <svg class="confetti" style="bottom:22%; right:8%; width:8px; height:8px; background:var(--pastel-red);"></svg>
+
+  <form class="card" id="loginForm" autocomplete="off">
+    <img src="/assets/logo-cofki.png" alt="Cofki" class="logo">
+    <div class="mark"><span></span><span></span><span></span></div>
+    <h1>Portal Cofki</h1>
+    <p class="sub">Acceso a herramientas internas de Cofki Café. Ingresa la contraseña de tu nivel de acceso.</p>
+    <label for="password">Contraseña</label>
+    <input type="password" id="password" name="password" required autofocus>
+    <button type="submit" id="submitBtn">Entrar</button>
+    <div class="error" id="errorMsg"></div>
+    <div class="foot">Cofki Café · kid-friendly café</div>
+  </form>
+
+<script>
+const form = document.getElementById('loginForm');
+const errorMsg = document.getElementById('errorMsg');
+const submitBtn = document.getElementById('submitBtn');
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  errorMsg.textContent = '';
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Verificando...';
+
+  const password = document.getElementById('password').value;
+
+  try {
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password }),
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      errorMsg.textContent = data.error || 'No se pudo iniciar sesión';
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Entrar';
+      return;
+    }
+
+    window.location.href = '/portal.html';
+  } catch (err) {
+    errorMsg.textContent = 'Error de conexión. Intenta de nuevo.';
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Entrar';
+  }
+});
+</script>
+</body>
+</html>
