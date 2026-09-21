@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal Cofki</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Montserrat+Alternates:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --candy:#FF5252;
+    --jungle:#00BFA5;
+    --honey:#FFA726;
+    --butter:#FFD180;
+    --elephant:#424242;
+    --seal:#757575;
+    --pastel-red:#FFCDD2;
+    --pastel-teal:#B3E0DC;
+    --pastel-orange:#FFE0B2;
+    --light-gray:#F4F4F4;
+    --border:#E6E6E6;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    min-height:100vh;
+    font-family:'Montserrat', sans-serif;
+    background:#FAFAFA;
+    color:var(--elephant);
+  }
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:20px 40px;
+    background:#fff;
+    border-bottom:1px solid var(--border);
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .brand img{ height:36px; }
+  .brand-text{
+    font-family:'Montserrat Alternates', sans-serif;
+    font-weight:800;
+    font-size:17px;
+    color:var(--elephant);
+  }
+  .role-pill{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-size:11.5px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    padding:6px 12px;
+    border-radius:999px;
+    background:var(--pastel-teal);
+    color:#00695C;
+  }
+  .role-pill.gerentes{ background:var(--pastel-orange); color:#B8620B; }
+  .role-pill.socios{ background:var(--pastel-red); color:#C62828; }
+  .actions{
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+  a.link-btn, button.link-btn{
+    font-size:13px;
+    font-weight:600;
+    color:var(--seal);
+    background:none;
+    border:1.5px solid var(--border);
+    padding:8px 14px;
+    border-radius:8px;
+    cursor:pointer;
+    text-decoration:none;
+    transition:border-color .15s ease, color .15s ease;
+  }
+  a.link-btn:hover, button.link-btn:hover{
+    color:var(--elephant);
+    border-color:var(--jungle);
+  }
+  main{
+    max-width:1080px;
+    margin:0 auto;
+    padding:44px 40px 80px;
+  }
+  h1{
+    font-family:'Montserrat Alternates', sans-serif;
+    font-size:26px;
+    font-weight:800;
+    margin:0 0 6px;
+  }
+  .sub{
+    color:var(--seal);
+    font-size:14px;
+    margin:0 0 24px;
+  }
+  .search-wrap{
+    position:relative;
+    max-width:360px;
+    margin-bottom:28px;
+  }
+  .search-wrap svg{
+    position:absolute;
+    left:14px;
+    top:50%;
+    transform:translateY(-50%);
+    pointer-events:none;
+  }
+  #searchInput{
+    width:100%;
+    padding:11px 14px 11px 40px;
+    border-radius:10px;
+    border:1.5px solid var(--border);
+    background:#fff;
+    color:var(--elephant);
+    font-size:14px;
+    font-family:inherit;
+    outline:none;
+    transition:border-color .15s ease;
+  }
+  #searchInput:focus{
+    border-color:var(--jungle);
+  }
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));
+    gap:18px;
+  }
+  .app-card{
+    display:block;
+    text-decoration:none;
+    color:var(--elephant);
+    background:#fff;
+    border:1px solid var(--border);
+    border-left:4px solid var(--jungle);
+    border-radius:12px;
+    padding:22px;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .app-card.gerentes{ border-left-color:var(--honey); }
+  .app-card.socios{ border-left-color:var(--candy); }
+  .app-card:hover{
+    transform:translateY(-2px);
+    box-shadow:0 16px 32px -20px rgba(66,66,66,0.25);
+  }
+  .app-name{
+    font-weight:700;
+    font-size:16px;
+    margin:0 0 8px;
+  }
+  .app-desc{
+    color:var(--seal);
+    font-size:13px;
+    line-height:1.5;
+    margin:0 0 16px;
+  }
+  .app-open{
+    font-size:12.5px;
+    font-weight:700;
+    color:var(--jungle);
+    display:inline-flex;
+    align-items:center;
+    gap:4px;
+  }
+  .empty, .loading{
+    color:var(--seal);
+    font-size:14px;
+    padding:60px 0;
+    text-align:center;
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <img src="/assets/emblema-cofki.png" alt="Cofki">
+    <span class="brand-text">Portal Cofki</span>
+  </div>
+  <div class="actions">
+    <span class="role-pill" id="rolePill">···</span>
+    <a class="link-btn" id="adminLink" href="/admin.html" style="display:none;">Administrar contraseñas</a>
+    <button class="link-btn" id="logoutBtn">Cerrar sesión</button>
+  </div>
+</header>
+<main>
+  <h1>Tus herramientas</h1>
+  <p class="sub">Apps disponibles según tu nivel de acceso.</p>
+  <div class="search-wrap">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9E9E9E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="8"></circle>
+      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+    </svg>
+    <input type="text" id="searchInput" placeholder="Buscar una app...">
+  </div>
+  <div id="content" class="loading">Cargando...</div>
+</main>
+
+<script>
+const ROLE_LABEL = { socios: 'Socios', gerentes: 'Gerentes', equipo: 'Equipo' };
+let allApps = [];
+
+function renderApps(apps) {
+  const content = document.getElementById('content');
+  if (!apps.length) {
+    content.className = 'empty';
+    content.textContent = allApps.length ? 'No hay apps que coincidan con tu búsqueda.' : 'No hay apps configuradas todavía para tu nivel.';
+    return;
+  }
+  content.className = 'grid';
+  content.innerHTML = apps.map(app => `
+    <a class="app-card ${app.minTier || ''}" href="${app.url}" target="_blank" rel="noopener">
+      <p class="app-name">${app.name}</p>
+      <p class="app-desc">${app.description || ''}</p>
+      <span class="app-open">Abrir →</span>
+    </a>
+  `).join('');
+}
+
+async function load() {
+  try {
+    const res = await fetch('/api/apps');
+    if (res.status === 401) {
+      window.location.href = '/index.html';
+      return;
+    }
+    const data = await res.json();
+
+    const rolePill = document.getElementById('rolePill');
+    rolePill.textContent = ROLE_LABEL[data.role] || data.role;
+    if (data.role === 'gerentes' || data.role === 'socios') {
+      rolePill.classList.add(data.role);
+    }
+    if (data.role === 'socios') {
+      document.getElementById('adminLink').style.display = 'inline-block';
+    }
+
+    allApps = data.apps;
+    renderApps(allApps);
+  } catch (err) {
+    document.getElementById('content').textContent = 'Error al cargar las apps.';
+  }
+}
+
+document.getElementById('searchInput').addEventListener('input', (e) => {
+  const q = e.target.value.trim().toLowerCase();
+  if (!q) {
+    renderApps(allApps);
+    return;
+  }
+  const filtered = allApps.filter(app =>
+    app.name.toLowerCase().includes(q) || (app.description || '').toLowerCase().includes(q)
+  );
+  renderApps(filtered);
+});
+
+document.getElementById('logoutBtn').addEventListener('click', async () => {
+  await fetch('/api/logout', { method: 'POST' });
+  window.location.href = '/index.html';
+});
+
+load();
+</script>
+</body>
+</html>
