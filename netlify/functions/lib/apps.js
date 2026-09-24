@@ -54,4 +54,11 @@ module.exports = [
     url: 'https://checklist-supervision-socio.netlify.app/',
     minTier: 'socios',
   },
+  {
+    id: 'auditorias-semanales',
+    name: 'Auditorías Semanales',
+    description: 'Auditorías semanales de líderes A&B y Front, con planes de acción y dashboard',
+    url: 'https://cofki-auditorias.netlify.app/',
+    minTier: 'gerentes',
+  },
 ];
