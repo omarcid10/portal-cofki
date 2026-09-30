@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Comisiones Delivery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+  :root{
+    --bg:#F5F6F8; --card:#FFFFFF; --ink:#1B1F27; --ink-soft:#6B7280; --line:#E4E7EC;
+    --teal:#0E9F8C; --teal-dark:#0B8073; --teal-tint:#E7F7F4;
+    --amber:#F2A93B; --amber-tint:#FDF3E0; --red:#E5484D; --red-tint:#FCEBEC; --radius:12px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;}
+  #app{max-width:1180px;margin:0 auto;padding:28px 20px 80px;}
+
+  header.top{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:8px;}
+  header.top h1{font-size:20px;font-weight:800;letter-spacing:-0.02em;margin:0;}
+  header.top .sub{color:var(--ink-soft);font-size:13px;}
+
+  .grid{display:grid;grid-template-columns:380px 1fr;gap:20px;align-items:start;}
+  @media (max-width:860px){.grid{grid-template-columns:1fr;}}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;}
+  .card h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);margin:0 0 16px;font-weight:700;}
+
+  .tabstrip{display:flex;gap:4px;background:var(--bg);border-radius:10px;padding:4px;margin-bottom:16px;}
+  .tabstrip button{flex:1;border:none;background:transparent;padding:8px 6px;border-radius:7px;font-family:inherit;font-size:12.5px;font-weight:600;color:var(--ink-soft);cursor:pointer;transition:background .15s,color .15s;}
+  .tabstrip button.active{background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.06);}
+
+  label{display:block;font-size:12px;font-weight:600;color:var(--ink-soft);margin:14px 0 6px;}
+  label:first-of-type{margin-top:0;}
+  select, input[type=number], input[type=text]{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font-family:inherit;font-size:14px;background:#fff;color:var(--ink);}
+  select:focus, input:focus{outline:2px solid var(--teal);outline-offset:0;border-color:var(--teal);}
+  input.needs-check{border-color:var(--amber);background:var(--amber-tint);}
+
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .hint{font-size:11.5px;color:var(--ink-soft);margin-top:4px;line-height:1.5;}
+  .divider{border:none;border-top:1px solid var(--line);margin:18px 0;}
+
+  .dropzone{border:1.5px dashed var(--line);border-radius:10px;padding:18px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s;}
+  .dropzone:hover, .dropzone.drag{border-color:var(--teal);background:var(--teal-tint);}
+  .dropzone p{margin:0;font-size:12.5px;color:var(--ink-soft);}
+  .dropzone .fname{font-weight:600;color:var(--ink);font-size:13px;margin-top:4px;}
+  .dropzone img{max-height:110px;border-radius:6px;margin-bottom:8px;}
+
+  button.primary{width:100%;margin-top:16px;background:var(--teal);color:#fff;border:none;padding:11px;border-radius:8px;font-family:inherit;font-weight:700;font-size:14px;cursor:pointer;transition:background .15s;}
+  button.primary:hover{background:var(--teal-dark);}
+  button.primary:disabled{background:#C7CCD3;cursor:not-allowed;}
+  button.ghost{background:transparent;border:1px solid var(--line);color:var(--ink);padding:9px 14px;border-radius:8px;font-family:inherit;font-weight:600;font-size:13px;cursor:pointer;}
+  button.ghost:hover{border-color:var(--teal);color:var(--teal-dark);}
+
+  .spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;display:inline-block;vertical-align:-2px;margin-right:7px;animation:spin .7s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  .status{font-size:12.5px;margin-top:10px;padding:8px 10px;border-radius:7px;display:none;}
+  .status.show{display:block;}
+  .status.info{background:var(--teal-tint);color:var(--teal-dark);}
+  .status.warn{background:var(--amber-tint);color:#8A5B00;}
+  .status.err{background:var(--red-tint);color:var(--red);}
+
+  .computed{margin-top:6px;}
+  .computed .grid5{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .computed .box{background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:12px 14px;}
+  .computed .box .lbl{font-size:11px;color:var(--ink-soft);font-weight:700;text-transform:uppercase;letter-spacing:.03em;}
+  .computed .box .val{font-family:'JetBrains Mono',monospace;font-size:19px;font-weight:700;margin-top:4px;}
+  .computed .box.accent{background:var(--teal-tint);}
+  .computed .box.accent .val{color:var(--teal-dark);}
+  .preview-empty{color:var(--ink-soft);font-size:13.5px;line-height:1.6;padding:24px 4px;text-align:center;}
+  .preview-empty b{color:var(--ink);}
+  .rawfields{margin-top:18px;border-top:1px solid var(--line);padding-top:14px;}
+  .rawfields summary{cursor:pointer;font-size:12px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;}
+  .rawfields label{margin-top:12px;}
+
+  .tablewrap{overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  thead th{text-align:right;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);font-weight:700;padding:8px 10px;border-bottom:2px solid var(--line);white-space:nowrap;}
+  thead th:first-child, thead th:nth-child(2), thead th:nth-child(3), thead th:nth-child(4){text-align:left;}
+  tbody td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap;}
+  tbody td:first-child, tbody td:nth-child(2), tbody td:nth-child(3), tbody td:nth-child(4){text-align:left;}
+  tbody tr:hover{background:var(--bg);}
+  tbody td.num{font-family:'JetBrains Mono',monospace;}
+  .pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;background:var(--teal-tint);color:var(--teal-dark);}
+  .rowdel{background:none;border:none;color:#B9BEC7;cursor:pointer;font-size:15px;padding:2px 6px;}
+  .rowdel:hover{color:var(--red);}
+  tfoot td{padding:10px;font-weight:800;border-top:2px solid var(--line);font-family:'JetBrains Mono',monospace;text-align:right;}
+  tfoot td:first-child{text-align:left;font-family:'Inter';}
+
+  .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
+  .toolbar .actions{display:flex;gap:8px;}
+  .empty-table{color:var(--ink-soft);font-size:13.5px;padding:30px 4px;text-align:center;}
+  .count{font-size:12.5px;color:var(--ink-soft);}
+  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:10;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="top">
+    <h1>Comisiones Delivery</h1>
+    <span class="sub">Sube la captura del recibo — la lectura y el cálculo son automáticos, todo corre en tu navegador</span>
+  </header>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Nuevo registro</h2>
+
+      <label>App</label>
+      <div class="tabstrip" id="appTabs"></div>
+
+      <label>Marca</label>
+      <select id="marcaSel">
+        <option>Benditos Chilaquiles</option>
+        <option>District</option>
+        <option>MiChilakil</option>
+        <option>Cofki</option>
+        <option>Spaghetto</option>
+      </select>
+
+      <label>Sucursal</label>
+      <select id="sucursalSel">
+        <option>Aurora</option>
+        <option>Gm3</option>
+        <option>Serena</option>
+      </select>
+
+      <hr class="divider">
+      <div id="ocrBlock"></div>
+      <div id="fieldsBody"></div>
+    </div>
+
+    <div class="card" id="previewCard">
+      <h2>Cálculo — revisa antes de agregar</h2>
+      <div id="previewBody">
+        <div class="preview-empty">Sube una captura del recibo a la izquierda.<br>Aquí verás los datos leídos y el <b>cálculo automático</b> antes de agregarlo a la tabla.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px;">
+    <div class="toolbar">
+      <h2 style="margin:0;">Registro de comisiones <span class="count" id="rowCount"></span></h2>
+      <div class="actions">
+        <button class="ghost" id="copyBtn">Copiar tabla</button>
+        <button class="ghost" id="csvBtn">Descargar CSV (Excel)</button>
+        <button class="ghost" id="clearBtn" style="color:var(--red);border-color:var(--red-tint);">Borrar historial</button>
+      </div>
+    </div>
+    <div class="tablewrap">
+      <table id="dataTable">
+        <thead>
+          <tr>
+            <th>Marca</th><th>App</th><th>Sucursal</th><th>Periodo</th>
+            <th>Venta Neta</th><th>Ganancia Recibida</th><th>Impuesto</th><th>Publicidad</th><th>Reembolsos</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="dataTbody"></tbody>
+        <tfoot id="dataTfoot"></tfoot>
+      </table>
+      <div class="empty-table" id="emptyTable">Aún no hay registros. Los que agregues se guardan en este navegador automáticamente.</div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------------------------------------------------------------
+   LECTURA DE MONTOS
+   Cada app formatea el dinero distinto: Didi usa "MXN$1,234.56"
+   (signo antes, punto decimal); Uber usa "1.234,56 MXN" (signo
+   después, coma decimal). parseMoneyToken no necesita saber cuál
+   es cuál — solo toma los últimos 2 dígitos como centavos y el resto
+   (sin separadores) como la parte entera; basta con darle a cada app
+   el patrón correcto para "encontrar" el número en la línea. El OCR
+   a veces confunde además la coma de miles con un punto en fuentes
+   grandes (p.ej. "2,872.67" -> "2.872.67") — por eso no asumimos cuál
+   separador es cuál, solo la posición de los últimos 2 dígitos.
+------------------------------------------------------------------*/
+const DIDI_AMOUNT_RE = /(?:-\s*)?(?:mxn)?\$\s*([\d.,]+)/i;
+const UBER_AMOUNT_RE = /(?:-\s*)?([\d.,]+)\s*mxn/i;
+
+function parseMoneyToken(token){
+  const cleaned = token.replace(/[^\d.,]/g,'');
+  const m = cleaned.match(/[.,](\d{2})$/); // últimos 2 dígitos = centavos
+  if(m){
+    const sepIndex = cleaned.length - 3;
+    const intPart = cleaned.slice(0, sepIndex).replace(/[.,]/g,'');
+    const decPart = cleaned.slice(sepIndex+1);
+    return parseFloat((intPart || '0') + '.' + decPart);
+  }
+  const digitsOnly = cleaned.replace(/[.,]/g,'');
+  return digitsOnly ? parseFloat(digitsOnly) : null;
+}
+
+function amountFromLine(line, amountRe){
+  const m = line.match(amountRe || DIDI_AMOUNT_RE);
+  if(!m) return null;
+  const val = parseMoneyToken(m[1]);
+  return val===null ? null : Math.abs(val);
+}
+
+// Un campo puede tener VARIAS formas de nombrarse según la sucursal o
+// el reporte (ej. "Gasto de publicidad" en GM3/Aurora vs "Gastos en
+// anuncios" en Serena). ocrKeywordSets es una lista de alternativas;
+// basta con que la línea cumpla con UNA de ellas.
+function fieldMatchesLine(field, normLine){
+  const sets = field.ocrKeywordSets || (field.ocrKeywords ? [field.ocrKeywords] : null);
+  if(!sets) return false;
+  return sets.some(set => set.every(k => normLine.includes(k)));
+}
+
+/* ---------------------------------------------------------------
+   RAPPI — lectura directa del Excel (sin OCR)
+   El "Resumen" del archivo suele venir con las celdas SIN recalcular
+   (todo en 0) aunque las fórmulas sean correctas, así que en vez de
+   confiar en esos valores guardados, sumamos directo desde la
+   pestaña "Detalle" replicando las mismas columnas que usan esas
+   fórmulas (confirmado contra un archivo real). Sumar filas de más
+   al final no afecta el resultado porque las celdas vacías valen 0.
+------------------------------------------------------------------*/
+async function readRappiXlsx(file){
+  const buf = await file.arrayBuffer();
+  const wb = XLSX.read(buf, { type:"array" });
+
+  const detalle = wb.Sheets["Detalle"];
+  if(!detalle) throw new Error("No se encontró la pestaña \"Detalle\" en el archivo.");
+  const range = XLSX.utils.decode_range(detalle["!ref"]);
+  const lastRow = range.e.r + 1; // 1-indexado
+
+  function colSum(colLetter){
+    let sum = 0;
+    for(let r=3; r<=lastRow; r++){
+      const cell = detalle[colLetter+r];
+      if(cell && typeof cell.v === "number") sum += cell.v;
+    }
+    return sum;
+  }
+
+  const ventaNeta  = colSum("Q");                                                          // Resumen D8
+  const reembolsos = Math.abs(["V","W","X","Y","Z","AA","AB"].reduce((s,c)=>s+colSum(c),0)); // Resumen D14:D21
+  const comisiones = Math.abs(["AC","AD"].reduce((s,c)=>s+colSum(c),0));                     // Resumen D22:D23
+  const publicidad = Math.abs(colSum("AK"));                                                 // Resumen D33
+  const impuestos  = Math.abs(["AS","AT","AU","AV","AW","AX","AY","AZ","BA","BB","BC"].reduce((s,c)=>s+colSum(c),0)); // Resumen D39:D49
+
+  // Periodo (Resumen D3/D4) — informativo, best-effort.
+  let periodoInicio = "", periodoFin = "";
+  try{
+    const resumen = wb.Sheets["Resumen"];
+    const fmt = (v) => {
+      if(v instanceof Date){
+        const dd = String(v.getDate()).padStart(2,'0');
+        const mm = String(v.getMonth()+1).padStart(2,'0');
+        return `${dd}/${mm}/${v.getFullYear()}`;
+      }
+      if(typeof v === "number"){
+        const s = XLSX.SSF.format("yyyy-mm-dd", v); // formato base de Excel
+        return fmt(s);
+      }
+      if(typeof v === "string"){
+        const m = v.trim().match(/^(\d{4})-(\d{2})-(\d{2})/); // "2026-08-03" -> "03/08/2026"
+        if(m) return `${m[3]}/${m[2]}/${m[1]}`;
+        return v.trim();
+      }
+      return "";
+    };
+    if(resumen && resumen["D3"]) periodoInicio = fmt(resumen["D3"].v);
+    if(resumen && resumen["D4"]) periodoFin = fmt(resumen["D4"].v);
+  }catch(e){ /* informativo, no crítico */ }
+
+  return { ventaNeta, impuestos, publicidad, reembolsos, comisiones, periodoInicio, periodoFin };
+}
+
+/* ---------------------------------------------------------------
+   LÓGICA POR APP
+   "fields": qué números se leen del recibo (id + etiqueta + las
+   palabras que se buscan en el texto reconocido por OCR para
+   encontrar cada valor).
+   "compute": cómo se combinan esos números en los 5 valores finales.
+   Para agregar Rappi cuando definan su lógica, se agrega su entrada
+   aquí igual que Didi y UberEats.
+------------------------------------------------------------------*/
+const APP_CONFIG = {
+  Didi: {
+    amountRegex: DIDI_AMOUNT_RE,
+    fields: [
+      { id:"precioTotal",  label:"Precio total del producto sin promoción", ocrKeywords:["precio total"] },
+      { id:"gastoPromo",   label:"Gasto de promoción de productos en tienda", ocrKeywords:["gastos de promocion"] },
+      { id:"gananciaTotal",label:"Ganancias totales", ocrKeywords:["ganancias totales"],
+        // Vive en la tarjeta superior izquierda, lejos de la tabla —
+        // si la lectura general no la encuentra, se reintenta con un
+        // recorte de solo esa esquina para no cruzarse con la columna derecha.
+        cropRegion:{ x:0, y:0, w:0.30, h:0.38 } },
+      { id:"impuestos",    label:"Impuestos (subtotal)", ocrKeywords:["impuestos"] },
+      { id:"cancelaciones",label:"Cancelación de pedidos y reembolso", ocrKeywords:["cancelacion de pedidos"] }
+    ],
+    compute: (v) => ({
+      ventaNeta: v.precioTotal - v.gastoPromo,
+      gananciaRecibida: v.gananciaTotal,
+      impuesto: v.impuestos,
+      publicidad: 0, // Didi: no se ingresa publicidad por ahora
+      reembolsos: v.cancelaciones
+    })
+  },
+  UberEats: {
+    amountRegex: UBER_AMOUNT_RE,
+    fields: [
+      { id:"ganancias",     label:"Ganancias", ocrKeywords:["ganancias"] },
+      { id:"promoArticulos",label:"Promociones en artículos", ocrKeywords:["promociones en articulos"] },
+      { id:"pagoTotal",     label:"Pago total", ocrKeywords:["pago total"] },
+      { id:"impuestosNetos",label:"Impuestos netos", ocrKeywords:["impuestos netos"] },
+      { id:"gastosPublicidad", label:"Publicidad", ocrKeywordSets:[["gastos de publicidad"], ["gastos en anuncios"]] },
+      // Uber no siempre muestra esta fila, y a veces la llama distinto
+      // ("Reembolsos clientes", "Importe del contra cargo", "Importe
+      // neto del contracargo") — si no aparece, queda en 0 sin marcarse como error.
+      { id:"reembolsos",    label:"Reembolsos clientes", ocrKeywordSets:[["reembolso"], ["contracargo"], ["contra cargo"]], optional:true }
+    ],
+    compute: (v) => ({
+      ventaNeta: v.ganancias - v.promoArticulos,
+      gananciaRecibida: v.pagoTotal,
+      impuesto: v.impuestosNetos,
+      publicidad: v.gastosPublicidad,
+      reembolsos: v.reembolsos
+    })
+  },
+  Rappi: {
+    kind: "xlsx", // no usa OCR: lee las celdas del Excel directamente
+    readXlsx: readRappiXlsx,
+    fields: [
+      { id:"ventaNeta",  label:"Venta Neta (Resumen D8 = suma Detalle col. Q)" },
+      { id:"impuestos",  label:"Impuestos (Resumen D39:D49 = suma Detalle AS:BC)" },
+      { id:"publicidad", label:"Publicidad (Resumen D33 = Detalle col. AK)" },
+      { id:"reembolsos", label:"Reembolsos a clientes (Resumen D14:D21 = suma Detalle V:AB)" },
+      { id:"comisiones", label:"Comisiones (Resumen D22:D23 = suma Detalle AC:AD)" }
+    ],
+    compute: (v) => ({
+      ventaNeta: v.ventaNeta,
+      gananciaRecibida: v.ventaNeta - v.impuestos - v.publicidad - v.reembolsos - v.comisiones,
+      impuesto: v.impuestos,
+      publicidad: v.publicidad,
+      reembolsos: v.reembolsos
+    })
+  }
+};
+const APPS = ["Didi", "UberEats", "Rappi"];
+
+const GENERIC_FIELDS = [
+  { id:"ventaNeta",        label:"Venta Neta" },
+  { id:"gananciaRecibida", label:"Ganancia Recibida" },
+  { id:"impuesto",         label:"Impuesto" },
+  { id:"publicidad",       label:"Publicidad" },
+  { id:"reembolsos",       label:"Reembolsos a clientes" }
+];
+
+/* ---------------------------------------------------------------
+   OCR — lee el texto de la imagen localmente (Tesseract.js)
+------------------------------------------------------------------*/
+let ocrWorker = null;
+async function getOcrWorker(onProgress){
+  if(ocrWorker) return ocrWorker;
+  ocrWorker = await Tesseract.createWorker('spa', 1, {
+    logger: (m) => { if(onProgress) onProgress(m); }
+  });
+  return ocrWorker;
+}
+
+function normalizeText(s){
+  return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+}
+
+/* ---------------------------------------------------------------
+   NOMBRE DE ARCHIVO -> App / Marca / Sucursal
+   Convención: App_Marca_Sucursal.png (ej. Didi_Benditos_Aurora.png)
+   El orden no importa realmente: se busca en todos los "trozos" del
+   nombre, así que Benditos_Aurora_Didi.png también funciona.
+------------------------------------------------------------------*/
+const MARCAS = ["Benditos Chilaquiles","District","MiChilakil","Cofki","Spaghetto"];
+const SUCURSALES = ["Aurora","Gm3","Serena"];
+
+function matchAppToken(token){
+  const n = normalizeText(token);
+  if(n.includes("didi")) return "Didi";
+  if(n.includes("uber")) return "UberEats";
+  if(n.includes("rappi")) return "Rappi";
+  return null;
+}
+function matchMarcaToken(token){
+  const n = normalizeText(token);
+  for(const m of MARCAS){
+    const firstWord = normalizeText(m.split(" ")[0]); // "Benditos", "District"...
+    if(n.includes(firstWord) || firstWord.includes(n)) return m;
+  }
+  return null;
+}
+function matchSucursalToken(token){
+  const n = normalizeText(token);
+  for(const s of SUCURSALES){
+    if(n.includes(normalizeText(s))) return s;
+  }
+  return null;
+}
+
+function parseFilename(filename){
+  const base = filename.replace(/\.[^.]+$/, "");
+  const tokens = base.split(/[_\-\s]+/).filter(Boolean);
+  let app=null, marca=null, sucursal=null;
+  for(const t of tokens){
+    if(!app) app = matchAppToken(t);
+    if(!marca) marca = matchMarcaToken(t);
+    if(!sucursal) sucursal = matchSucursalToken(t);
+  }
+  return { app, marca, sucursal };
+}
+
+// Determina, para cada línea, si es la etiqueta de ALGÚN campo — así
+// evitamos que la búsqueda hacia adelante "cruce" hacia el monto de
+// otro campo cuando el OCR mezcla el orden de columnas del recibo.
+function findLineOwner(normLine, fields){
+  for(const f of fields){
+    if(fieldMatchesLine(f, normLine)) return f.id;
+  }
+  return null;
+}
+
+function findAmountByKeywords(lines, normLines, fields, field, amountRe){
+  for(let i=0;i<lines.length;i++){
+    if(fieldMatchesLine(field, normLines[i])){
+      let amt = amountFromLine(lines[i], amountRe);
+      if(amt!==null) return amt;
+      for(let j=i+1;j<Math.min(lines.length,i+4);j++){
+        const owner = findLineOwner(normLines[j], fields);
+        if(owner && owner !== field.id) break; // esta línea ya es de otro campo — no seguir
+        amt = amountFromLine(lines[j], amountRe);
+        if(amt!==null) return amt;
+      }
+    }
+  }
+  return null;
+}
+
+function extractFieldsFromText(text, fields, amountRe){
+  const lines = text.split('\n').map(l=>l.trim()).filter(Boolean);
+  const normLines = lines.map(normalizeText);
+  const result = {};
+  fields.forEach(f=>{
+    result[f.id] = (f.ocrKeywords || f.ocrKeywordSets) ? findAmountByKeywords(lines, normLines, fields, f, amountRe) : null;
+  });
+  return result;
+}
+
+function loadImageFromFile(file){
+  return new Promise((resolve, reject)=>{
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error("No se pudo cargar la imagen"));
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+// Segunda pasada, solo para campos que definen "cropRegion": recorta
+// esa parte de la imagen (en fracciones 0–1 del ancho/alto) y la
+// vuelve a leer aislada, para que el OCR no se cruce con otra columna.
+async function ocrCroppedRegion(worker, file, region){
+  const img = await loadImageFromFile(file);
+  try{
+    const sx = region.x * img.naturalWidth, sy = region.y * img.naturalHeight;
+    const sw = region.w * img.naturalWidth, sh = region.h * img.naturalHeight;
+    const scale = 2; // amplía el recorte para mejorar la lectura
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(sw*scale));
+    canvas.height = Math.max(1, Math.round(sh*scale));
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+    const { data } = await worker.recognize(canvas);
+    return data.text;
+  } finally {
+    URL.revokeObjectURL(img.src);
+  }
+}
+
+async function retryMissingFieldsWithCrop(worker, file, raw, fields, amountRe){
+  for(const f of fields){
+    if(raw[f.id] === null && f.cropRegion){
+      try{
+        const cropText = await ocrCroppedRegion(worker, file, f.cropRegion);
+        const cropLines = cropText.split('\n').map(l=>l.trim()).filter(Boolean);
+        const cropNormLines = cropLines.map(normalizeText);
+        const amt = findAmountByKeywords(cropLines, cropNormLines, [f], f, amountRe);
+        if(amt !== null) raw[f.id] = amt;
+      }catch(e){ /* si falla, el campo queda marcado para revisión manual */ }
+    }
+  }
+  return raw;
+}
+
+/* ---------------------------------------------------------------
+   STATE
+------------------------------------------------------------------*/
+let state = { app: "Didi", rows: [], file: null, filePreviewUrl: null, fileQueue: null, queueIndex: 0 };
+const STORAGE_KEY = "comisiones_delivery_rows_v1";
+const $ = (id) => document.getElementById(id);
+
+function init(){
+  renderAppTabs();
+  renderOcrBlock();
+  renderFields();
+  wireButtons();
+  loadRows();
+  renderTable();
+}
+
+function loadRows(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    state.rows = raw ? JSON.parse(raw) : [];
+  }catch(e){ state.rows = []; }
+}
+function saveRows(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state.rows)); }
+  catch(e){ toast("No se pudo guardar en este navegador (¿modo privado?)."); }
+}
+
+function renderAppTabs(){
+  const wrap = $("appTabs");
+  wrap.innerHTML = "";
+  APPS.forEach(app=>{
+    const btn = document.createElement("button");
+    btn.textContent = app;
+    btn.className = app === state.app ? "active" : "";
+    btn.onclick = () => { state.app = app; renderAppTabs(); renderOcrBlock(); renderFields(); resetPreview(); };
+    wrap.appendChild(btn);
+  });
+}
+
+/* ---------------------------------------------------------------
+   BLOQUE DE CARGA DE IMAGEN (solo si la app tiene lógica de lectura)
+------------------------------------------------------------------*/
+function renderOcrBlock(){
+  const cfg = APP_CONFIG[state.app];
+  const block = $("ocrBlock");
+  if(!cfg){
+    block.innerHTML = `<div class="hint" style="margin-bottom:10px;">La lectura automática de <b>${state.app}</b> aún no está configurada — captura los valores manualmente abajo.</div>`;
+    return;
+  }
+  const isXlsx = cfg.kind === "xlsx";
+  const queueBanner = (state.fileQueue && state.fileQueue.length)
+    ? `<div class="status show info" style="margin-top:0;margin-bottom:10px;">
+         Procesando ${state.queueIndex+1} de ${state.fileQueue.length} · <b>${state.fileQueue[state.queueIndex].file.name}</b>
+         <button class="ghost" id="skipBtn" style="padding:3px 9px;font-size:11px;margin-left:6px;">Saltar</button>
+       </div>`
+    : "";
+  block.innerHTML = `
+    ${queueBanner}
+    <label style="margin-top:0;">${isXlsx ? "Reporte de Excel (semanal)" : "Captura del recibo"}</label>
+    <div class="dropzone" id="dropzone">
+      <input type="file" id="fileInput" accept="${isXlsx ? ".xlsx,.xls" : "image/*"}" multiple style="display:none">
+      <div id="dropzoneContent"><p>${isXlsx ? "Arrastra uno o varios archivos .xlsx aquí, o haz clic para elegirlos" : "Arrastra una o varias capturas aquí, o haz clic para elegirlas"}</p></div>
+    </div>
+    <div class="hint">Nombra los archivos como <b>App_Marca_Sucursal.${isXlsx ? "xlsx" : "png"}</b> (ej. ${isXlsx ? "Rappi_Cofki_Aurora.xlsx" : "Didi_Benditos_Aurora.png"}) para que se preseleccionen solos.</div>
+    <button class="primary" id="extractBtn">Extraer datos</button>
+    <div class="status" id="statusBox"></div>`;
+  wireDropzone();
+  $("extractBtn").onclick = onExtract;
+  if(state.fileQueue && state.fileQueue.length){
+    $("skipBtn").onclick = () => advanceQueue();
+  }
+}
+
+function wireDropzone(){
+  const dz = $("dropzone");
+  const input = $("fileInput");
+  dz.onclick = () => input.click();
+  dz.ondragover = (e)=>{ e.preventDefault(); dz.classList.add("drag"); };
+  dz.ondragleave = ()=> dz.classList.remove("drag");
+  dz.ondrop = (e)=>{ e.preventDefault(); dz.classList.remove("drag"); if(e.dataTransfer.files.length) handleFileSelection(e.dataTransfer.files); };
+  input.onchange = ()=>{ if(input.files.length) handleFileSelection(input.files); };
+}
+
+function handleFileSelection(fileList){
+  const files = Array.from(fileList);
+  if(files.length === 1){
+    state.fileQueue = null;
+    setFile(files[0]);
+    return;
+  }
+  // varios archivos: arma la cola con lo que se pueda leer del nombre
+  state.fileQueue = files.map(file => ({ file, ...parseFilename(file.name) }));
+  state.queueIndex = 0;
+  loadCurrentQueueItem();
+}
+
+function loadCurrentQueueItem(){
+  if(!state.fileQueue || state.queueIndex >= state.fileQueue.length){
+    state.fileQueue = null;
+    toast("Cola de archivos terminada.");
+    return;
+  }
+  const item = state.fileQueue[state.queueIndex];
+  const appReady = item.app && APP_CONFIG[item.app];
+  if(appReady && item.app !== state.app){
+    state.app = item.app;
+    renderAppTabs();
+  }
+  renderOcrBlock(); // refresca el banner de cola + reconstruye el dropzone
+  if(item.marca) $("marcaSel").value = item.marca;
+  if(item.sucursal) $("sucursalSel").value = item.sucursal;
+  renderFields();
+  setFile(item.file);
+
+  if(appReady){
+    onExtract();
+  }else{
+    showStatus("No se pudo identificar la App desde el nombre del archivo — revisa App/Marca/Sucursal y presiona 'Extraer datos'.", "warn");
+  }
+}
+
+function advanceQueue(){
+  if(!state.fileQueue) return;
+  state.queueIndex++;
+  loadCurrentQueueItem();
+}
+
+function setFile(file){
+  state.file = file;
+  if(state.filePreviewUrl) URL.revokeObjectURL(state.filePreviewUrl);
+  if(file.type && file.type.startsWith("image/")){
+    state.filePreviewUrl = URL.createObjectURL(file);
+    $("dropzoneContent").innerHTML = `<img src="${state.filePreviewUrl}" alt="preview"><div class="fname">${file.name}</div>`;
+  }else{
+    state.filePreviewUrl = null;
+    $("dropzoneContent").innerHTML = `<div style="font-size:28px;">📄</div><div class="fname">${file.name}</div>`;
+  }
+}
+
+function showStatus(msg, kind){
+  const box = $("statusBox");
+  if(!box) return;
+  box.className = "status show " + kind;
+  box.innerHTML = msg;
+}
+
+async function onExtract(){
+  const cfg = APP_CONFIG[state.app];
+  if(!state.file){ showStatus(`Primero carga ${cfg.kind==="xlsx" ? "un archivo de Excel" : "una captura del recibo"}.`, "warn"); return; }
+
+  if(cfg.kind === "xlsx"){
+    await onExtractXlsx(cfg);
+  }else{
+    await onExtractOcr(cfg);
+  }
+}
+
+async function onExtractXlsx(cfg){
+  const btn = $("extractBtn");
+  btn.disabled = true;
+  showStatus(`<span class="spinner" style="border-top-color:var(--teal-dark);border-color:rgba(14,159,140,.25);"></span>Leyendo archivo…`, "info");
+  try{
+    const raw = await cfg.readXlsx(state.file);
+    applyExtractionToFields(raw, cfg.fields);
+    if(raw.periodoInicio) $("f_periodoInicio").value = raw.periodoInicio;
+    if(raw.periodoFin) $("f_periodoFin").value = raw.periodoFin;
+    onCalculate();
+    showStatus("Archivo leído correctamente. Revisa el cálculo a la derecha antes de agregar.", "info");
+  }catch(err){
+    showStatus("No se pudo leer el archivo (" + err.message + "). Verifica que sea el reporte semanal de Rappi tal cual lo descargas, o captura los valores a mano abajo.", "err");
+  }finally{
+    btn.disabled = false;
+    btn.textContent = "Extraer datos";
+  }
+}
+
+async function onExtractOcr(cfg){
+  const btn = $("extractBtn");
+  btn.disabled = true;
+  showStatus(`<span class="spinner" style="border-top-color:var(--teal-dark);border-color:rgba(14,159,140,.25);"></span>Preparando lectura… (la primera vez puede tardar, descarga el modelo de idioma)`, "info");
+
+  try{
+    const worker = await getOcrWorker((m)=>{
+      if(m.status === 'recognizing text'){
+        const pct = Math.round((m.progress||0)*100);
+        showStatus(`<span class="spinner" style="border-top-color:var(--teal-dark);border-color:rgba(14,159,140,.25);"></span>Leyendo recibo… ${pct}%`, "info");
+      }
+    });
+    const { data } = await worker.recognize(state.file);
+    const raw = extractFieldsFromText(data.text, cfg.fields, cfg.amountRegex);
+
+    const stillMissing = cfg.fields.some(f => raw[f.id] === null && f.cropRegion);
+    if(stillMissing){
+      showStatus(`<span class="spinner" style="border-top-color:var(--teal-dark);border-color:rgba(14,159,140,.25);"></span>Reintentando con recorte…`, "info");
+      await retryMissingFieldsWithCrop(worker, state.file, raw, cfg.fields, cfg.amountRegex);
+    }
+
+    applyExtractionToFields(raw, cfg.fields);
+
+    // Los campos "optional" (p.ej. Reembolsos, que no siempre aparece
+    // en el recibo) se quedan en 0 sin marcarse como error si no se detectan.
+    const missing = cfg.fields.filter(f => raw[f.id] === null && !f.optional);
+    onCalculate();
+    if(missing.length){
+      showStatus(`Se leyeron los datos, pero no se detectaron con claridad: <b>${missing.map(f=>f.label).join(', ')}</b>. Revísalos abajo (resaltados) antes de agregar.`, "warn");
+    }else{
+      showStatus("Datos leídos correctamente. Revisa el cálculo a la derecha antes de agregar.", "info");
+    }
+  }catch(err){
+    showStatus("No se pudo leer la imagen automáticamente (" + err.message + "). Puedes capturar los valores a mano abajo.", "err");
+  }finally{
+    btn.disabled = false;
+    btn.textContent = "Extraer datos";
+  }
+}
+
+function applyExtractionToFields(raw, fields){
+  fields.forEach(f=>{
+    const el = $("f_"+f.id);
+    if(!el) return;
+    if(raw[f.id] === null){
+      el.value = "0";
+      if(!f.optional) el.classList.add("needs-check");
+    }else{
+      el.value = raw[f.id].toFixed(2);
+      el.classList.remove("needs-check");
+    }
+  });
+}
+
+/* ---------------------------------------------------------------
+   CAMPOS (siempre visibles y editables — de respaldo o manual)
+------------------------------------------------------------------*/
+function renderFields(){
+  const cfg = APP_CONFIG[state.app];
+  const fields = cfg ? cfg.fields : GENERIC_FIELDS;
+  const body = $("fieldsBody");
+
+  let inner = `<label style="margin-top:0;">Periodo</label><div class="row2">
+      <input type="text" id="f_periodoInicio" placeholder="Inicio DD/MM/AAAA">
+      <input type="text" id="f_periodoFin" placeholder="Fin DD/MM/AAAA">
+    </div>`;
+  fields.forEach(f=>{
+    inner += `<label>${f.label}</label><input type="number" step="0.01" id="f_${f.id}" value="0" placeholder="0.00">`;
+  });
+  inner += `<button class="primary" id="calcBtn" style="background:var(--ink);margin-top:14px;">Recalcular</button>`;
+
+  if(cfg){
+    body.innerHTML = `<details class="rawfields" open><summary>Valores leídos (editables)</summary>${inner}</details>`;
+  }else{
+    body.innerHTML = inner;
+  }
+
+  $("calcBtn").onclick = onCalculate;
+  fields.forEach(f=>{ $("f_"+f.id).oninput = () => { $("f_"+f.id).classList.remove("needs-check"); onCalculate(); }; });
+}
+
+function readFieldValues(fields){
+  const v = {};
+  fields.forEach(f=>{ v[f.id] = parseFloat($("f_"+f.id).value) || 0; });
+  return v;
+}
+
+function onCalculate(){
+  const cfg = APP_CONFIG[state.app];
+  const fields = cfg ? cfg.fields : GENERIC_FIELDS;
+  const raw = readFieldValues(fields);
+  const computed = cfg ? cfg.compute(raw) : raw;
+  const periodoInicio = $("f_periodoInicio").value.trim();
+  const periodoFin = $("f_periodoFin").value.trim();
+  renderPreview({ ...computed, periodoInicio, periodoFin });
+}
+
+function money(n){ return (n||0).toLocaleString("es-MX", { minimumFractionDigits:2, maximumFractionDigits:2 }); }
+
+function renderPreview(c){
+  const body = $("previewBody");
+  body.innerHTML = `
+    <div class="computed">
+      <div class="grid5">
+        <div class="box accent"><div class="lbl">Venta Neta</div><div class="val">$${money(c.ventaNeta)}</div></div>
+        <div class="box accent"><div class="lbl">Ganancia Recibida</div><div class="val">$${money(c.gananciaRecibida)}</div></div>
+        <div class="box"><div class="lbl">Impuesto</div><div class="val">$${money(c.impuesto)}</div></div>
+        <div class="box"><div class="lbl">Publicidad</div><div class="val">$${money(c.publicidad)}</div></div>
+        <div class="box"><div class="lbl">Reembolsos</div><div class="val">$${money(c.reembolsos)}</div></div>
+        <div class="box"><div class="lbl">Periodo</div><div class="val" style="font-size:13px;">${[c.periodoInicio,c.periodoFin].filter(Boolean).join(" – ")||"—"}</div></div>
+      </div>
+      <button class="primary" id="addRowBtn">Agregar a la tabla</button>
+    </div>`;
+
+  $("addRowBtn").onclick = () => {
+    state.rows.push({
+      id: Date.now(),
+      marca: $("marcaSel").value,
+      app: state.app,
+      sucursal: $("sucursalSel").value,
+      periodo: [c.periodoInicio, c.periodoFin].filter(Boolean).join(" – "),
+      ventaNeta: c.ventaNeta, gananciaRecibida: c.gananciaRecibida,
+      impuesto: c.impuesto, publicidad: c.publicidad, reembolsos: c.reembolsos
+    });
+    saveRows();
+    renderTable();
+    if(state.fileQueue){
+      advanceQueue();
+    }else{
+      resetForm();
+    }
+    toast("Registro agregado a la tabla.");
+  };
+}
+
+function resetPreview(){
+  $("previewBody").innerHTML = `<div class="preview-empty">Sube una captura del recibo a la izquierda.<br>Aquí verás los datos leídos y el <b>cálculo automático</b> antes de agregarlo a la tabla.</div>`;
+}
+function resetForm(){
+  state.file = null; state.filePreviewUrl = null;
+  renderOcrBlock();
+  renderFields();
+  resetPreview();
+}
+
+let toastTimer;
+function toast(msg){
+  const el = $("toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> el.classList.remove("show"), 2400);
+}
+
+/* ---------------------------------------------------------------
+   TABLA + EXPORT
+------------------------------------------------------------------*/
+function wireButtons(){
+  $("copyBtn").onclick = onCopy;
+  $("csvBtn").onclick = onDownloadCsv;
+  $("clearBtn").onclick = onClearHistory;
+}
+
+function onClearHistory(){
+  if(!state.rows.length){ toast("El historial ya está vacío."); return; }
+  const ok = confirm(`¿Borrar los ${state.rows.length} registro(s) guardados? Esto no se puede deshacer. Si quieres conservarlos, descarga el CSV antes de continuar.`);
+  if(!ok) return;
+  state.rows = [];
+  saveRows();
+  renderTable();
+  toast("Historial borrado.");
+}
+
+function renderTable(){
+  const tbody = $("dataTbody"), tfoot = $("dataTfoot"), empty = $("emptyTable"), table = $("dataTable");
+  $("rowCount").textContent = state.rows.length ? `(${state.rows.length})` : "";
+  if(!state.rows.length){ table.style.display="none"; empty.style.display="block"; return; }
+  table.style.display = "table"; empty.style.display = "none";
+
+  tbody.innerHTML = state.rows.map(r => `
+    <tr>
+      <td>${r.marca}</td>
+      <td><span class="pill">${r.app}</span></td>
+      <td>${r.sucursal}</td>
+      <td>${r.periodo || "—"}</td>
+      <td class="num">${money(r.ventaNeta)}</td>
+      <td class="num">${money(r.gananciaRecibida)}</td>
+      <td class="num">${money(r.impuesto)}</td>
+      <td class="num">${money(r.publicidad)}</td>
+      <td class="num">${money(r.reembolsos)}</td>
+      <td><button class="rowdel" data-id="${r.id}" title="Eliminar">✕</button></td>
+    </tr>`).join("");
+
+  tbody.querySelectorAll(".rowdel").forEach(btn=>{
+    btn.onclick = () => { state.rows = state.rows.filter(r => r.id !== Number(btn.dataset.id)); saveRows(); renderTable(); };
+  });
+
+  const sum = (key) => state.rows.reduce((a,r)=>a+r[key],0);
+  tfoot.innerHTML = `<tr>
+      <td colspan="4">Total</td>
+      <td class="num">${money(sum("ventaNeta"))}</td>
+      <td class="num">${money(sum("gananciaRecibida"))}</td>
+      <td class="num">${money(sum("impuesto"))}</td>
+      <td class="num">${money(sum("publicidad"))}</td>
+      <td class="num">${money(sum("reembolsos"))}</td>
+      <td></td>
+    </tr>`;
+}
+
+const HEADERS = ["Marca","App","Sucursal","Periodo","Venta Neta","Ganancia Recibida","Impuesto","Publicidad","Reembolsos"];
+function rowsToDelimited(delimiter){
+  const lines = [HEADERS.join(delimiter)];
+  state.rows.forEach(r=>{
+    lines.push([r.marca, r.app, r.sucursal, r.periodo,
+      r.ventaNeta.toFixed(2), r.gananciaRecibida.toFixed(2), r.impuesto.toFixed(2),
+      r.publicidad.toFixed(2), r.reembolsos.toFixed(2)].join(delimiter));
+  });
+  return lines.join("\n");
+}
+function onCopy(){
+  if(!state.rows.length){ toast("No hay registros que copiar todavía."); return; }
+  navigator.clipboard.writeText(rowsToDelimited("\t"))
+    .then(()=> toast("Tabla copiada — pégala directamente en Excel."))
+    .catch(()=> toast("No se pudo copiar. Usa 'Descargar CSV'."));
+}
+function onDownloadCsv(){
+  if(!state.rows.length){ toast("No hay registros que exportar todavía."); return; }
+  const csv = "\uFEFF" + rowsToDelimited(",");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "comisiones_delivery.csv";
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+init();
+</script>
+</body>
+</html>

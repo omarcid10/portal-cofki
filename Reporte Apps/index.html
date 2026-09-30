@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cofki · Reporte de Calificaciones</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Montserrat+Alternates:wght@500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ===================== SIDEBAR / NAV ===================== -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">C</div>
+      <div class="brand-text">
+        <strong>Cofki</strong>
+        <span>Reporte de calificaciones</span>
+      </div>
+    </div>
+    <nav class="nav" id="mainNav">
+      <button class="nav-item is-active" data-view="dashboard">
+        <span class="nav-ico">◧</span><span>Dashboard</span>
+      </button>
+      <button class="nav-item" data-view="captura">
+        <span class="nav-ico">✎</span><span>Captura semanal</span>
+      </button>
+      <button class="nav-item" data-view="reporte">
+        <span class="nav-ico">▤</span><span>Generar reporte</span>
+      </button>
+      <button class="nav-item" data-view="historial">
+        <span class="nav-ico">↻</span><span>Historial</span>
+      </button>
+      <button class="nav-item" data-view="config">
+        <span class="nav-ico">⚙</span><span>Configuración</span>
+      </button>
+    </nav>
+    <div class="sidebar-foot">
+      <button class="btn btn-ghost btn-sm" id="btnExportJson">Exportar datos</button>
+      <button class="btn btn-ghost btn-sm" id="btnImportOpen">Importar datos</button>
+      <input type="file" id="importFileInput" accept="application/json" hidden>
+    </div>
+  </aside>
+
+  <!-- ===================== MAIN ===================== -->
+  <main class="main">
+
+    <!-- ---------- DASHBOARD ---------- -->
+    <section class="view is-active" id="view-dashboard">
+      <header class="view-head">
+        <div>
+          <h1>Dashboard general</h1>
+          <p class="sub">Panorama de calificaciones de todas las marcas y sucursales.</p>
+        </div>
+      </header>
+
+      <div class="filter-bar">
+        <label class="field">
+          <span>Aplicación</span>
+          <select id="dashApp"><option value="all">Todas</option></select>
+        </label>
+        <label class="field">
+          <span>Sucursal</span>
+          <select id="dashBranch"><option value="all">Todas</option></select>
+        </label>
+        <label class="field">
+          <span>Semana</span>
+          <select id="dashWeek"></select>
+        </label>
+      </div>
+
+      <div class="kpi-grid" id="kpiGrid"></div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3 class="card-title">Mejor desempeño</h3>
+          <div id="bestCard" class="best-worst"></div>
+        </div>
+        <div class="card">
+          <h3 class="card-title">Peor desempeño</h3>
+          <div id="worstCard" class="best-worst"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- CAPTURA SEMANAL ---------- -->
+    <section class="view" id="view-captura">
+      <header class="view-head">
+        <div>
+          <h1>Captura semanal</h1>
+          <p class="sub">Registra las calificaciones de la semana en un solo paso.</p>
+        </div>
+      </header>
+
+      <div class="filter-bar">
+        <label class="field">
+          <span>Aplicación</span>
+          <select id="capApp"></select>
+        </label>
+        <label class="field">
+          <span>Semana / fecha del reporte</span>
+          <input type="date" id="capDate">
+        </label>
+        <label class="field">
+          <span>Sucursal</span>
+          <select id="capBranch"></select>
+        </label>
+      </div>
+
+      <div class="card" id="capCard">
+        <div class="capture-head">
+          <div>
+            <h3 class="card-title" id="capTitle">Selecciona aplicación, semana y sucursal</h3>
+            <p class="muted small" id="capSubtitle"></p>
+          </div>
+        </div>
+        <div id="capTableWrap"></div>
+        <div class="capture-actions">
+          <button class="btn btn-primary" id="btnSaveWeek">Guardar semana</button>
+          <span class="save-hint" id="saveHint"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- GENERAR REPORTE ---------- -->
+    <section class="view" id="view-reporte">
+      <header class="view-head">
+        <div>
+          <h1>Generar reporte</h1>
+          <p class="sub">Crea el reporte visual listo para compartir con los gerentes.</p>
+        </div>
+      </header>
+
+      <div class="filter-bar">
+        <label class="field">
+          <span>Aplicación</span>
+          <select id="repApp"></select>
+        </label>
+        <label class="field">
+          <span>Semana</span>
+          <select id="repWeek"></select>
+        </label>
+        <label class="field">
+          <span>Sucursal</span>
+          <select id="repBranch"><option value="all">Todas las sucursales</option></select>
+        </label>
+        <button class="btn btn-primary" id="btnGenerateReport">Generar reporte</button>
+      </div>
+
+      <div class="report-toolbar hidden" id="reportToolbar">
+        <button class="btn btn-ghost btn-sm" id="btnDownloadPng">Descargar PNG</button>
+        <button class="btn btn-ghost btn-sm" id="btnDownloadPdf">Descargar PDF</button>
+        <button class="btn btn-ghost btn-sm" id="btnCopyReport">Copiar reporte</button>
+      </div>
+
+      <div class="report-stage" id="reportStage">
+        <div class="report-placeholder" id="reportPlaceholder">
+          Selecciona una aplicación y una semana, luego presiona <strong>Generar reporte</strong>.
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- HISTORIAL ---------- -->
+    <section class="view" id="view-historial">
+      <header class="view-head">
+        <div>
+          <h1>Historial</h1>
+          <p class="sub">Consulta semanas anteriores y la evolución de cada marca.</p>
+        </div>
+      </header>
+
+      <div class="grid-2 align-start">
+        <div class="card">
+          <h3 class="card-title">Semanas registradas</h3>
+          <div id="weekList" class="week-list"></div>
+        </div>
+
+        <div class="card">
+          <h3 class="card-title">Evolución de una marca</h3>
+          <div class="filter-bar filter-bar-tight">
+            <label class="field">
+              <span>Aplicación</span>
+              <select id="evoApp"></select>
+            </label>
+            <label class="field">
+              <span>Sucursal</span>
+              <select id="evoBranch"></select>
+            </label>
+            <label class="field">
+              <span>Marca</span>
+              <select id="evoBrand"></select>
+            </label>
+          </div>
+          <div id="evoChart" class="evo-chart"></div>
+        </div>
+      </div>
+
+      <div class="card" id="weekSnapshotCard" style="display:none;">
+        <div class="capture-head">
+          <h3 class="card-title" id="weekSnapshotTitle">Reporte de la semana</h3>
+          <label class="field field-inline">
+            <span>Aplicación</span>
+            <select id="snapshotApp"></select>
+          </label>
+        </div>
+        <div id="weekSnapshotStage"></div>
+      </div>
+    </section>
+
+    <!-- ---------- CONFIGURACIÓN ---------- -->
+    <section class="view" id="view-config">
+      <header class="view-head">
+        <div>
+          <h1>Configuración</h1>
+          <p class="sub">Administra aplicaciones, sucursales y marcas sin tocar código.</p>
+        </div>
+      </header>
+
+      <div class="tabs" id="configTabs">
+        <button class="tab is-active" data-tab="apps">Aplicaciones</button>
+        <button class="tab" data-tab="branches">Sucursales</button>
+        <button class="tab" data-tab="brands">Marcas</button>
+        <button class="tab" data-tab="prefs">Preferencias</button>
+      </div>
+
+      <div class="config-panel is-active" id="panel-apps">
+        <form class="inline-form" id="formAddApp">
+          <input type="text" id="newAppName" placeholder="Nombre de la aplicación (ej. Uber Eats)" required>
+          <button class="btn btn-primary btn-sm" type="submit">Agregar</button>
+        </form>
+        <div class="catalog-list" id="listApps"></div>
+      </div>
+
+      <div class="config-panel" id="panel-branches">
+        <form class="inline-form" id="formAddBranch">
+          <input type="text" id="newBranchName" placeholder="Nombre de la sucursal (ej. Pueblo Serena)" required>
+          <button class="btn btn-primary btn-sm" type="submit">Agregar</button>
+        </form>
+        <div class="catalog-list" id="listBranches"></div>
+      </div>
+
+      <div class="config-panel" id="panel-brands">
+        <form class="inline-form inline-form-wrap" id="formAddBrand">
+          <input type="text" id="newBrandName" placeholder="Nombre de la marca" required>
+          <input type="text" id="newBrandShort" placeholder="Nombre corto (opcional)">
+          <input type="color" id="newBrandColor" value="#00BFA5" title="Color de identificación">
+          <label class="file-btn">
+            Logo
+            <input type="file" id="newBrandLogo" accept="image/*" hidden>
+          </label>
+          <button class="btn btn-primary btn-sm" type="submit">Agregar</button>
+        </form>
+        <div class="catalog-list" id="listBrands"></div>
+      </div>
+
+      <div class="config-panel" id="panel-prefs">
+        <div class="prefs-form">
+          <label class="field">
+            <span>Decimales en calificaciones</span>
+            <select id="prefDecRating"><option value="1">1 (ej. 4.7)</option><option value="2">2 (ej. 4.70)</option><option value="0">0 (ej. 5)</option></select>
+          </label>
+          <label class="field">
+            <span>Decimales en variaciones</span>
+            <select id="prefDecVariation"><option value="1">1 (ej. +0.1)</option><option value="2">2 (ej. +0.10)</option></select>
+          </label>
+          <button class="btn btn-primary btn-sm" id="btnSavePrefs">Guardar preferencias</button>
+        </div>
+        <hr class="divider">
+        <h3 class="card-title">Respaldo</h3>
+        <div class="prefs-actions">
+          <button class="btn btn-ghost btn-sm" id="btnExportCsv">Exportar historial (CSV)</button>
+          <button class="btn btn-ghost btn-sm" id="btnExportJson2">Exportar respaldo completo (JSON)</button>
+          <button class="btn btn-ghost btn-sm" id="btnImportOpen2">Importar / restaurar (JSON)</button>
+          <button class="btn btn-danger-ghost btn-sm" id="btnClearHistory">Borrar historial de calificaciones</button>
+          <button class="btn btn-danger-ghost btn-sm" id="btnResetDemo">Restaurar datos de demostración</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- Off-screen root used to render a clean, fixed-width copy of the report for PNG/PDF export -->
+<div id="exportRoot" class="export-root"></div>
+
+<div id="toastContainer" class="toast-container"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

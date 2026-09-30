@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<title>Cofki — Inventario de Cierre</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f3; min-height: 100vh; }
+.app { max-width: 480px; margin: 0 auto; background: #fff; min-height: 100vh; }
+.screen { display: none; }
+.screen.active { display: block; }
+.header { padding: 1rem 1rem 0.75rem; border-bottom: 1px solid #e8e8e4; display: flex; align-items: center; gap: 10px; background: #fff; position: sticky; top: 0; z-index: 10; }
+.logo-badge { width: 36px; height: 36px; border-radius: 10px; background: #1a1a1a; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.header-title { font-size: 15px; font-weight: 600; color: #1a1a1a; }
+.header-sub { font-size: 11px; color: #888; }
+.header-right { margin-left: auto; display: flex; gap: 6px; }
+.tab-btn { font-size: 11px; padding: 5px 12px; border: 1px solid #ddd; border-radius: 20px; background: transparent; color: #666; cursor: pointer; }
+.tab-btn.active { background: #1a1a1a; color: #f5f0e8; border-color: #1a1a1a; }
+.section-label { font-size: 10px; font-weight: 600; color: #aaa; text-transform: uppercase; letter-spacing: 0.7px; padding: 0.7rem 1rem 0.2rem; background: #fafaf8; }
+.field-row { display: flex; align-items: center; padding: 0.55rem 1rem; gap: 10px; border-bottom: 1px solid #f0f0ec; background: #fff; }
+.field-icon { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 14px; }
+.field-name { font-size: 13px; color: #1a1a1a; font-weight: 500; flex: 1; }
+.field-unit { font-size: 10px; color: #aaa; display: block; margin-top: 1px; }
+.field-input { width: 72px; text-align: right; font-size: 15px; font-weight: 600; padding: 6px 8px; border: 1px solid #e0e0dc; border-radius: 8px; background: #fafaf8; color: #1a1a1a; -webkit-appearance: none; }
+.field-input:focus { outline: none; border-color: #1a1a1a; background: #fff; }
+.meta-row { padding: 0.55rem 1rem; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #f0f0ec; }
+.meta-row label { font-size: 12px; color: #888; white-space: nowrap; min-width: 80px; }
+.meta-row select, .meta-row input[type=text] { flex: 1; font-size: 13px; padding: 7px 10px; border: 1px solid #e0e0dc; border-radius: 8px; background: #fafaf8; color: #1a1a1a; -webkit-appearance: none; appearance: none; }
+.meta-row select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+.fecha-display { flex: 1; font-size: 13px; padding: 7px 10px; border: 1px solid #e0e0dc; border-radius: 8px; background: #f0f0ec; color: #666; }
+.actions { padding: 1rem; }
+.btn-main { width: 100%; padding: 13px; font-size: 14px; font-weight: 600; border: none; border-radius: 12px; background: #1a1a1a; color: #f5f0e8; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; -webkit-tap-highlight-color: transparent; }
+.btn-main:active { opacity: 0.85; transform: scale(0.99); }
+.btn-main:disabled { opacity: 0.5; }
+.btn-sec { width: 100%; padding: 11px; font-size: 13px; border: 1px solid #e0e0dc; border-radius: 12px; background: transparent; color: #666; cursor: pointer; margin-top: 8px; }
+.spinner { width: 16px; height: 16px; border: 2px solid rgba(245,240,232,0.3); border-top-color: #f5f0e8; border-radius: 50%; animation: spin 0.7s linear infinite; display: none; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.toast-err { font-size: 12px; color: #c0392b; padding: 6px 0; display: none; text-align: center; margin-top: 8px; }
+.success-screen { padding: 2.5rem 1.5rem; text-align: center; }
+.success-icon { font-size: 48px; margin-bottom: 14px; }
+.success-title { font-size: 18px; font-weight: 600; color: #1a1a1a; margin-bottom: 8px; }
+.success-sub { font-size: 13px; color: #888; margin-bottom: 10px; }
+.sheets-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #1a7a4a; background: #e8f5ee; border-radius: 20px; padding: 6px 14px; margin-bottom: 24px; font-weight: 500; }
+.login-wrap { padding: 2rem 1.5rem; }
+.login-title { font-size: 15px; font-weight: 600; color: #1a1a1a; margin-bottom: 4px; }
+.login-sub { font-size: 12px; color: #888; margin-bottom: 20px; }
+.login-input { width: 100%; padding: 11px 14px; font-size: 14px; border: 1px solid #e0e0dc; border-radius: 10px; background: #fafaf8; color: #1a1a1a; margin-bottom: 10px; }
+.login-error { font-size: 12px; color: #c0392b; margin-bottom: 10px; display: none; }
+.hint { margin-top: 14px; font-size: 11px; color: #bbb; text-align: center; }
+.admin-center { padding: 2rem 1.5rem; text-align: center; }
+.admin-center .big-icon { font-size: 44px; margin-bottom: 14px; }
+.admin-center h3 { font-size: 15px; font-weight: 600; color: #1a1a1a; margin-bottom: 8px; }
+.admin-center p { font-size: 13px; color: #888; margin-bottom: 24px; line-height: 1.6; }
+.sheets-link { display: inline-block; padding: 12px 24px; background: #1a7a4a; color: #fff; border-radius: 12px; font-size: 14px; font-weight: 600; text-decoration: none; }
+.wa-toast { text-align: center; font-size: 12px; color: #1a7a4a; margin-top: 8px; display: none; }
+
+/* HISTORIAL */
+.hist-toolbar { padding: 0.75rem 1rem; border-bottom: 1px solid #f0f0ec; display: flex; align-items: center; gap: 8px; }
+.hist-toolbar label { font-size: 12px; color: #888; white-space: nowrap; }
+.hist-toolbar select { flex: 1; font-size: 13px; padding: 6px 10px; border: 1px solid #e0e0dc; border-radius: 8px; background: #fafaf8; color: #1a1a1a; -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+.hist-toolbar button { font-size: 12px; padding: 6px 12px; border: none; border-radius: 8px; background: #1a1a1a; color: #f5f0e8; cursor: pointer; white-space: nowrap; }
+.hist-loading { padding: 2rem; text-align: center; font-size: 13px; color: #888; }
+.hist-table-wrap { overflow-x: auto; padding: 0.5rem 0 1rem; }
+.hist-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.hist-table th { background: #1a1a1a; color: #f5f0e8; padding: 7px 8px; text-align: center; white-space: nowrap; font-weight: 600; position: sticky; top: 0; }
+.hist-table th:first-child { text-align: left; min-width: 130px; position: sticky; left: 0; z-index: 2; background: #1a1a1a; }
+.hist-table td { padding: 6px 8px; border-bottom: 1px solid #f0f0ec; text-align: center; white-space: nowrap; }
+.hist-table td:first-child { text-align: left; font-weight: 500; color: #1a1a1a; background: #fafaf8; position: sticky; left: 0; z-index: 1; }
+.hist-table tr:nth-child(even) td { background: #f8f8f6; }
+.hist-table tr:nth-child(even) td:first-child { background: #f0f0ec; }
+.hist-empty { padding: 2rem; text-align: center; font-size: 13px; color: #aaa; }
+.hist-date-header { font-size: 10px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- FORM -->
+<div id="screen-form" class="screen active">
+  <div class="header">
+    <div class="logo-badge">☕</div>
+    <div>
+      <div class="header-title">Cofki — Cierre del día</div>
+      <div class="header-sub" id="header-fecha"></div>
+    </div>
+    <div class="header-right">
+      <button class="tab-btn" onclick="goHistorial()">📊 Historial</button>
+      <button class="tab-btn" onclick="showLogin()" style="opacity:0;pointer-events:none;width:0;padding:0;border:0;">·</button>
+    </div>
+    <div style="position:fixed;bottom:0;right:0;width:50px;height:50px;z-index:99;cursor:default;" onclick="showLogin()"></div>
+  </div>
+
+  <div class="meta-row">
+    <label>Sucursal</label>
+    <select id="f-suc">
+      <option value="">Selecciona...</option>
+      <option>GM3</option>
+      <option>La Aurora</option>
+      <option>Pueblo Serena</option>
+    </select>
+  </div>
+  <div class="meta-row">
+    <label>Fecha</label>
+    <span class="fecha-display" id="fecha-display"></span>
+  </div>
+  <div class="meta-row">
+    <label>Quién cierra</label>
+    <input type="text" id="f-quien" placeholder="Tu nombre" autocomplete="name" />
+  </div>
+
+  <div class="section-label">Proteínas</div>
+  <div class="field-row">
+    <div class="field-icon" style="background:#faeeda;">🍗</div>
+    <div style="flex:1"><div class="field-name">Pollo cocido</div><span class="field-unit">porciones</span></div>
+    <input class="field-input" type="number" id="f-polloC" min="0" placeholder="0" inputmode="numeric" />
+  </div>
+  <div class="field-row">
+    <div class="field-icon" style="background:#faeeda;">🍗</div>
+    <div style="flex:1"><div class="field-name">Milanesa de pollo</div><span class="field-unit">porciones</span></div>
+    <input class="field-input" type="number" id="f-milanesa" min="0" placeholder="0" inputmode="numeric" />
+  </div>
+  <div class="field-row">
+    <div class="field-icon" style="background:#faeeda;">🍗</div>
+    <div style="flex:1"><div class="field-name">Pollo boneless / nuggets</div><span class="field-unit">porciones</span></div>
+    <input class="field-input" type="number" id="f-boneless" min="0" placeholder="0" inputmode="numeric" />
+  </div>
+  <div class="field-row">
+    <div class="field-icon" style="background:#faece7;">🥩</div>
+    <div style="flex:1"><div class="field-name">Arrachera</div><span class="field-unit">porciones</span></div>
+    <input class="field-input" type="number" id="f-arrachera" min="0" placeholder="0" inputmode="numeric" />
+  </div>
+  <div class="field-row">
+    <div class="field-icon" style="background:#faece7;">🥩</div>
+    <div style="flex:1"><div class="field-name">Carne molida</div><span class="field-unit">porciones</span></div>
+    <input class="field-input" type="number" id="f-carneMolida" min="0" placeholder="0" inputmode="numeric" />
+  </div>
+  <div class="field-row">
+    <div class="field-icon" style="background:#faece7;">🥩</div>
+    <div style="flex:1"><div class="field-name">Barbacoa</div><span class="field-unit">porciones</span></div>
+    <input class="field-input" type="number" id="f-barbacoa" min="0" placeholder="0" inputmode="numeric" />
+  </div>
+  <div class="field-row">
+    <div class="field-icon" style="background:#faece7;">🥩</div>
+    <div style="flex:1"><div class="field-name">Cochinita</div><span class="field-unit">porciones</span></div>
+    <input class="field-input" type="number" id="f-cochinita" min="0" placeholder="0" inputmode="numeric" />
+  </div>
+  <div class="field-row">
+    <div class="field-icon" style="background:#fbeaf0;">🥩</div>
+    <div style="flex:1"><div class="field-name">Jamón</div><span class="field-unit">gramos</span></div>
+    <input class="field-input" type="number" id="f-jamon" min="0" placeholder="0" inputmode="numeric" />
+  </div>
+
+  <div class="section-label">Lácteos y básicos</div>
+  <div class="field-row">
+    <div class="field-icon" style="background:#eaf3de;">🧀</div>
+    <div style="flex:1"><div class="field-name">Queso</div><span class="field-unit">kg</span></div>
+    <input class="field-input" type="number" id="f-queso" min="0" step="0.1" placeholder="0" inputmode="decimal" />
+  </div>
+  <div class="field-row">
+    <div class="field-icon" style="background:#f5f0e8;">☕</div>
+    <div style="flex:1"><div class="field-name">Café</div><span class="field-unit">kg</span></div>
+    <input class="field-input" type="number" id="f-cafe" min="0" step="0.1" placeholder="0" inputmode="decimal" />
+  </div>
+  <div class="field-row">
+    <div class="field-icon" style="background:#ddeeff;">🥛</div>
+    <div style="flex:1"><div class="field-name">Leche entera</div><span class="field-unit">litros</span></div>
+    <input class="field-input" type="number" id="f-lecheEntera" min="0" step="0.1" placeholder="0" inputmode="decimal" />
+  </div>
+  <div class="field-row">
+    <div class="field-icon" style="background:#eef4ff;">🥛</div>
+    <div style="flex:1"><div class="field-name">Leche deslactosada</div><span class="field-unit">litros</span></div>
+    <input class="field-input" type="number" id="f-lecheDesl" min="0" step="0.1" placeholder="0" inputmode="decimal" />
+  </div>
+
+  <div class="section-label">Bebidas y snacks</div>
+  <div class="field-row">
+    <div class="field-icon" style="background:#fbeaf0;">🥤</div>
+    <div style="flex:1"><div class="field-name">Latas de refresco</div><span class="field-unit">total latas</span></div>
+    <input class="field-input" type="number" id="f-refrescos" min="0" placeholder="0" inputmode="numeric" />
+  </div>
+  <div class="field-row">
+    <div class="field-icon" style="background:#fff8e1;">🍊</div>
+    <div style="flex:1"><div class="field-name">Jugo de naranja</div><span class="field-unit">galones</span></div>
+    <input class="field-input" type="number" id="f-jugo" min="0" step="0.1" placeholder="0" inputmode="decimal" />
+  </div>
+
+  <div class="section-label">Otros</div>
+  <div class="field-row">
+    <div class="field-icon" style="background:#f0e8f5;">🏦</div>
+    <div style="flex:1"><div class="field-name">Alcancías</div><span class="field-unit">piezas</span></div>
+    <input class="field-input" type="number" id="f-alcancias" min="0" placeholder="0" inputmode="numeric" />
+  </div>
+
+  <div class="section-label">Postres</div>
+  <div class="field-row">
+    <div class="field-icon" style="background:#faeeda;">🍪</div>
+    <div style="flex:1"><div class="field-name">Galletas</div><span class="field-unit">paquetes</span></div>
+    <input class="field-input" type="number" id="f-galletas" min="0" placeholder="0" inputmode="numeric" />
+  </div>
+  <div class="field-row">
+    <div class="field-icon" style="background:#faeeda;">🧁</div>
+    <div style="flex:1"><div class="field-name">Muffins</div><span class="field-unit">piezas</span></div>
+    <input class="field-input" type="number" id="f-muffins" min="0" placeholder="0" inputmode="numeric" />
+  </div>
+  <div class="field-row">
+    <div class="field-icon" style="background:#fbeaf0;">🍰</div>
+    <div style="flex:1"><div class="field-name">Rebanadas de Cheesecake</div><span class="field-unit">piezas</span></div>
+    <input class="field-input" type="number" id="f-cheesecake" min="0" placeholder="0" inputmode="numeric" />
+  </div>
+  <div class="field-row">
+    <div class="field-icon" style="background:#f5e8d0;">🍫</div>
+    <div style="flex:1"><div class="field-name">Chocolatín horneado</div><span class="field-unit">piezas (no congelado)</span></div>
+    <input class="field-input" type="number" id="f-chocolatin" min="0" placeholder="0" inputmode="numeric" />
+  </div>
+
+  <div class="actions">
+    <button class="btn-main" id="submit-btn" onclick="submitRecord()">
+      <div class="spinner" id="spinner"></div>
+      <span id="btn-label">Guardar y enviar a Sheets</span>
+    </button>
+    <div class="toast-err" id="form-err"></div>
+  </div>
+</div>
+
+<!-- SUCCESS -->
+<div id="screen-success" class="screen">
+  <div class="header">
+    <div class="logo-badge">☕</div>
+    <div><div class="header-title">Cofki — Cierre del día</div></div>
+  </div>
+  <div class="success-screen">
+    <div class="success-icon">✅</div>
+    <div class="success-title">¡Reporte guardado!</div>
+    <div class="success-sub" id="success-msg"></div>
+    <div class="sheets-badge">📊 Registrado en Google Sheets</div>
+    <button class="btn-main" onclick="resetForm()" style="max-width:240px;margin:0 auto 0;">Nuevo reporte</button>
+    <button class="btn-sec" onclick="copyWA()">Copiar mensaje para WhatsApp</button>
+    <div class="wa-toast" id="wa-toast">✓ Copiado al portapapeles</div>
+  </div>
+</div>
+
+<!-- HISTORIAL -->
+<div id="screen-historial" class="screen">
+  <div class="header">
+    <div class="logo-badge">📊</div>
+    <div><div class="header-title">Historial</div><div class="header-sub">Últimos 7 días por insumo</div></div>
+    <div class="header-right">
+      <button class="tab-btn" onclick="showScreen('screen-form')">← Volver</button>
+    </div>
+  </div>
+  <div class="hist-toolbar">
+    <label>Sucursal</label>
+    <select id="h-suc" onchange="renderHistorial()">
+      <option value="GM3">GM3</option>
+      <option value="La Aurora">La Aurora</option>
+      <option value="Pueblo Serena">Pueblo Serena</option>
+    </select>
+    <button onclick="cargarHistorial()">↻ Actualizar</button>
+  </div>
+  <div id="hist-content">
+    <div class="hist-loading">Cargando datos...</div>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div id="screen-login" class="screen">
+  <div class="header">
+    <div class="logo-badge">🔐</div>
+    <div><div class="header-title">Acceso admin</div><div class="header-sub">Solo dueño / encargado</div></div>
+    <div class="header-right"><button class="tab-btn" onclick="showScreen('screen-form')">← Volver</button></div>
+  </div>
+  <div class="login-wrap">
+    <div class="login-title">Contraseña de administrador</div>
+    <div class="login-sub">Ingresa la clave para acceder al panel</div>
+    <input class="login-input" type="password" id="admin-pass" placeholder="Contraseña..." onkeydown="if(event.key==='Enter')doLogin()" />
+    <div class="login-error" id="login-error">Contraseña incorrecta</div>
+    <button class="btn-main" onclick="doLogin()"><span>Entrar</span></button>
+    <div class="hint">Contraseña por defecto: <strong>cofki2024</strong></div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="screen-admin" class="screen">
+  <div class="header">
+    <div class="logo-badge">📊</div>
+    <div><div class="header-title">Panel admin</div><div class="header-sub">Base de datos en Google Sheets</div></div>
+    <div class="header-right"><button class="tab-btn" onclick="showScreen('screen-form')">← Salir</button></div>
+  </div>
+  <div class="admin-center">
+    <div class="big-icon">📊</div>
+    <h3>Todos los registros están en Google Sheets</h3>
+    <p>Cada vez que el equipo envía un reporte, aparece automáticamente en tu hoja de cálculo en tiempo real.</p>
+    <a href="https://docs.google.com/spreadsheets" target="_blank" class="sheets-link">Abrir Google Sheets</a>
+  </div>
+</div>
+
+</div>
+<script>
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzv--AwLOi21Vb2Lf6_Hob4jYQkGpcIhfmU36KhImohspm9KMdlapqCYhJ8YNzL_2m0KQ/exec';
+const ADMIN_PASS = 'cofki2024';
+let lastRecord = null;
+let historialData = null;
+
+// Fecha automática
+const today = new Date();
+const yyyy = today.getFullYear();
+const mm = String(today.getMonth()+1).padStart(2,'0');
+const dd = String(today.getDate()).padStart(2,'0');
+const fechaISO = `${yyyy}-${mm}-${dd}`;
+const fechaLegible = `${dd}/${mm}/${yyyy}`;
+document.getElementById('fecha-display').textContent = fechaLegible;
+document.getElementById('header-fecha').textContent = `📅 ${fechaLegible}`;
+
+// Insumos para historial
+const INSUMOS = [
+  { key: 'Pollo Cocido (porc)',      label: '🍗 Pollo cocido' },
+  { key: 'Milanesa (porc)',          label: '🍗 Milanesa' },
+  { key: 'Boneless/Nuggets (porc)',  label: '🍗 Boneless/Nuggets' },
+  { key: 'Arrachera (porc)',         label: '🥩 Arrachera' },
+  { key: 'Carne Molida (porc)',      label: '🥩 Carne molida' },
+  { key: 'Barbacoa (porc)',          label: '🥩 Barbacoa' },
+  { key: 'Cochinita (porc)',         label: '🥩 Cochinita' },
+  { key: 'Jamón (g)',                label: '🥩 Jamón' },
+  { key: 'Queso (kg)',               label: '🧀 Queso' },
+  { key: 'Café (kg)',                label: '☕ Café' },
+  { key: 'Leche Entera (L)',         label: '🥛 Leche entera' },
+  { key: 'Leche Deslactosada (L)',   label: '🥛 Leche desla.' },
+  { key: 'Refrescos (latas)',        label: '🥤 Refrescos' },
+  { key: 'Jugo Naranja (galones)',   label: '🍊 Jugo naranja' },
+  { key: 'Alcancías',               label: '🏦 Alcancías' },
+  { key: 'Galletas (paq)',           label: '🍪 Galletas' },
+  { key: 'Muffins',                  label: '🧁 Muffins' },
+  { key: 'Cheesecake (reb)',         label: '🍰 Cheesecake' },
+  { key: 'Chocolatín horneado',      label: '🍫 Chocolatín' },
+];
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function showLogin() { showScreen('screen-login'); }
+
+function goHistorial() {
+  showScreen('screen-historial');
+  if (!historialData) cargarHistorial();
+  else renderHistorial();
+}
+
+async function cargarHistorial() {
+  document.getElementById('hist-content').innerHTML = '<div class="hist-loading">⏳ Cargando datos...</div>';
+  try {
+    const res = await fetch(SHEETS_URL);
+    historialData = await res.json();
+    renderHistorial();
+  } catch(e) {
+    document.getElementById('hist-content').innerHTML = '<div class="hist-empty">❌ No se pudieron cargar los datos. Verifica tu conexión.</div>';
+  }
+}
+
+function renderHistorial() {
+  if (!historialData) return;
+  const suc = document.getElementById('h-suc').value;
+
+  // Obtener últimos 7 días únicos con datos de esa sucursal
+  const rows = historialData.filter(r => r['Sucursal'] === suc);
+  if (rows.length === 0) {
+    document.getElementById('hist-content').innerHTML = '<div class="hist-empty">Sin registros para esta sucursal.</div>';
+    return;
+  }
+
+  // Obtener fechas únicas, ordenadas desc, tomar las últimas 7
+  const fechasUnicas = [...new Set(rows.map(r => {
+    const f = r['Fecha'];
+    if (!f) return null;
+    if (typeof f === 'string') return f.slice(0,10);
+    if (f instanceof Date) return f.toISOString().slice(0,10);
+    // Google Sheets serial number
+    const d = new Date(Math.round((f - 25569) * 86400 * 1000));
+    return d.toISOString().slice(0,10);
+  }).filter(Boolean))].sort().reverse().slice(0, 7).reverse();
+
+  if (fechasUnicas.length === 0) {
+    document.getElementById('hist-content').innerHTML = '<div class="hist-empty">Sin fechas válidas.</div>';
+    return;
+  }
+
+  // Mapear datos por fecha
+  const porFecha = {};
+  fechasUnicas.forEach(f => { porFecha[f] = null; });
+  rows.forEach(r => {
+    let fk = r['Fecha'];
+    if (!fk) return;
+    if (typeof fk === 'string') fk = fk.slice(0,10);
+    else if (fk instanceof Date) fk = fk.toISOString().slice(0,10);
+    else { const d = new Date(Math.round((fk - 25569)*86400*1000)); fk = d.toISOString().slice(0,10); }
+    if (porFecha.hasOwnProperty(fk)) porFecha[fk] = r;
+  });
+
+  // Encabezados de fechas legibles
+  const fmtFecha = iso => {
+    const [y,m,d] = iso.split('-');
+    return `${d}/${m}`;
+  };
+
+  let html = '<div class="hist-table-wrap"><table class="hist-table"><thead><tr>';
+  html += '<th>Insumo</th>';
+  fechasUnicas.forEach(f => { html += `<th class="hist-date-header">${fmtFecha(f)}</th>`; });
+  html += '</tr></thead><tbody>';
+
+  INSUMOS.forEach(ins => {
+    html += `<tr><td>${ins.label}</td>`;
+    fechasUnicas.forEach(f => {
+      const row = porFecha[f];
+      const raw = row ? row[ins.key] : undefined;
+      const val = (raw !== undefined && raw !== '') ? raw : '–';
+      const esZero = val === 0 || val === '0';
+      const style = esZero ? ' style="background:#FFE0E0;color:#c0392b;font-weight:700;"' : '';
+      html += `<td${style}>${esZero ? '🔴 0' : val}</td>`;
+    });
+    html += '</tr>';
+  });
+
+  html += '</tbody></table></div>';
+  html += `<div style="padding:0.5rem 1rem;font-size:10px;color:#bbb;text-align:center;">Sucursal: ${suc} · ${fechasUnicas.length} días</div>`;
+  document.getElementById('hist-content').innerHTML = html;
+}
+
+function doLogin() {
+  const v = document.getElementById('admin-pass').value;
+  const err = document.getElementById('login-error');
+  if (v === ADMIN_PASS) {
+    err.style.display = 'none';
+    document.getElementById('admin-pass').value = '';
+    showScreen('screen-admin');
+  } else {
+    err.style.display = 'block';
+  }
+}
+
+function gv(id) { return parseFloat(document.getElementById(id).value) || 0; }
+function gs(id) { return document.getElementById(id).value.trim(); }
+
+function showErr(msg) {
+  const el = document.getElementById('form-err');
+  el.textContent = msg;
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 3500);
+}
+
+async function submitRecord() {
+  const suc = gs('f-suc');
+  const quien = gs('f-quien');
+  if (!suc) { showErr('Selecciona una sucursal'); return; }
+  if (!quien) { showErr('Escribe quién está cerrando'); return; }
+
+  // Alerta de insumos en cero
+  const camposNombres = [
+    ['f-polloC','Pollo cocido'], ['f-milanesa','Milanesa'], ['f-boneless','Boneless/Nuggets'],
+    ['f-arrachera','Arrachera'], ['f-carneMolida','Carne molida'], ['f-barbacoa','Barbacoa'],
+    ['f-cochinita','Cochinita'], ['f-jamon','Jamón'], ['f-queso','Queso'], ['f-cafe','Café'],
+    ['f-lecheEntera','Leche entera'], ['f-lecheDesl','Leche deslactosada'],
+    ['f-refrescos','Refrescos'], ['f-jugo','Jugo de naranja'], ['f-alcancias','Alcancías'],
+    ['f-galletas','Galletas'], ['f-muffins','Muffins'], ['f-cheesecake','Cheesecake'],
+    ['f-chocolatin','Chocolatín']
+  ];
+  const enCero = camposNombres.filter(([id]) => gv(id) === 0).map(([,nombre]) => nombre);
+  if (enCero.length > 0) {
+    const lista = enCero.map(n => `• ${n}`).join('\n');
+    const confirmar = confirm(`⚠️ Los siguientes insumos están en CERO:\n\n${lista}\n\n¿Deseas continuar de todas formas?`);
+    if (!confirmar) return;
+  }
+
+  const rec = {
+    fecha: fechaISO, sucursal: suc, quien,
+    polloC: gv('f-polloC'), milanesa: gv('f-milanesa'), boneless: gv('f-boneless'),
+    arrachera: gv('f-arrachera'), carneMolida: gv('f-carneMolida'),
+    barbacoa: gv('f-barbacoa'), cochinita: gv('f-cochinita'), jamon: gv('f-jamon'),
+    queso: gv('f-queso'), cafe: gv('f-cafe'),
+    lecheEntera: gv('f-lecheEntera'), lecheDesl: gv('f-lecheDesl'),
+    refrescos: gv('f-refrescos'), jugo: gv('f-jugo'),
+    alcancias: gv('f-alcancias'),
+    galletas: gv('f-galletas'), muffins: gv('f-muffins'),
+    cheesecake: gv('f-cheesecake'), chocolatin: gv('f-chocolatin')
+  };
+
+  const btn = document.getElementById('submit-btn');
+  const spinner = document.getElementById('spinner');
+  const label = document.getElementById('btn-label');
+  btn.disabled = true;
+  spinner.style.display = 'block';
+  label.textContent = 'Enviando...';
+
+  try {
+    await fetch(SHEETS_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(rec)
+    });
+    lastRecord = rec;
+    historialData = null; // forzar recarga al ver historial
+    document.getElementById('success-msg').textContent = `Sucursal ${suc} — ${fechaLegible} — ${quien}`;
+    showScreen('screen-success');
+  } catch(e) {
+    showErr('Error al conectar. Revisa tu internet e intenta de nuevo.');
+  } finally {
+    btn.disabled = false;
+    spinner.style.display = 'none';
+    label.textContent = 'Guardar y enviar a Sheets';
+  }
+}
+
+function buildWAMsg(r) {
+  return `📋 *INVENTARIO DE CIERRE — COFKI*\n📍 Sucursal ${r.sucursal}\n📅 ${fechaLegible} | ${r.quien}\n\n*Proteínas*\n🍗 Pollo cocido: ${r.polloC} porciones\n🍗 Milanesa de pollo: ${r.milanesa} porciones\n🍗 Boneless / Nuggets: ${r.boneless} porciones\n🥩 Arrachera: ${r.arrachera} porciones\n🥩 Carne molida: ${r.carneMolida} porciones\n🥩 Barbacoa: ${r.barbacoa} porciones\n🥩 Cochinita: ${r.cochinita} porciones\n🥩 Jamón: ${r.jamon} gramos\n\n*Lácteos y básicos*\n🧀 Queso: ${r.queso} kg\n☕ Café: ${r.cafe} kg\n🥛 Leche entera: ${r.lecheEntera} L\n🥛 Leche deslactosada: ${r.lecheDesl} L\n\n*Bebidas y snacks*\n🥤 Refrescos: ${r.refrescos} latas\n🍊 Jugo de naranja: ${r.jugo} galones\n\n*Otros*\n🏦 Alcancías: ${r.alcancias}\n\n*Postres*\n🍪 Galletas: ${r.galletas} paquetes\n🧁 Muffins: ${r.muffins}\n🍰 Cheesecake: ${r.cheesecake} rebanadas\n🍫 Chocolatín horneado: ${r.chocolatin} piezas`;
+}
+
+function copyWA() {
+  if (!lastRecord) return;
+  navigator.clipboard.writeText(buildWAMsg(lastRecord)).then(() => {
+    const t = document.getElementById('wa-toast');
+    t.style.display = 'block';
+    setTimeout(() => t.style.display = 'none', 2500);
+  });
+}
+
+function resetForm() {
+  ['f-polloC','f-milanesa','f-boneless','f-arrachera','f-carneMolida','f-barbacoa','f-cochinita','f-jamon',
+   'f-queso','f-cafe','f-lecheEntera','f-lecheDesl',
+   'f-refrescos','f-jugo','f-alcancias',
+   'f-galletas','f-muffins','f-cheesecake','f-chocolatin','f-quien'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('f-suc').value = '';
+  showScreen('screen-form');
+}
+</script>
+</body>
+</html>

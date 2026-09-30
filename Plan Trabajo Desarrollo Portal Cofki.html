@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cofki OS · Roadmap 2026</title>
+  <style>
+    :root{
+      --bg:#f5f7f6; --panel:#ffffff; --ink:#18312b; --muted:#6b7c76;
+      --brand:#0b5d4b; --brand-2:#13866b; --line:#dfe8e4;
+      --high:#d84a3a; --medium:#d79519; --low:#4979b8;
+      --done:#2b9b62; --progress:#ca8a04; --todo:#7a8791;
+      --shadow:0 10px 30px rgba(18,55,45,.08);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+    .app{max-width:1450px;margin:auto;padding:24px}
+    header{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:20px}
+    h1{margin:0;font-size:32px}
+    .subtitle{color:var(--muted);margin-top:6px}
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+    button,.btn,input,select{font:inherit}
+    button,.btn{border:0;border-radius:10px;padding:10px 14px;cursor:pointer}
+    .primary{background:var(--brand);color:#fff}
+    .secondary{background:#e8f1ee;color:var(--brand)}
+    .danger{background:#fbe9e7;color:#9f2f23}
+    .summary{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:18px}
+    .metric{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow)}
+    .metric .label{color:var(--muted);font-size:13px}
+    .metric .value{font-size:28px;font-weight:700;margin-top:5px}
+    .progress-wrap{height:9px;background:#e8eeeb;border-radius:999px;overflow:hidden;margin-top:9px}
+    .progress-bar{height:100%;background:var(--brand-2);width:0%}
+    .controls{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;display:grid;grid-template-columns:2fr repeat(4,1fr);gap:10px;margin-bottom:18px}
+    input,select{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px;background:#fff;color:var(--ink)}
+    .months{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+    .month-tab{background:#e9efed;color:var(--ink)}
+    .month-tab.active{background:var(--brand);color:#fff}
+    .board{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    .column{background:#eef3f1;border-radius:18px;padding:12px;min-height:420px}
+    .column h2{font-size:16px;margin:2px 4px 12px;display:flex;justify-content:space-between}
+    .task{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:13px;margin-bottom:10px;box-shadow:0 4px 14px rgba(18,55,45,.05)}
+    .task-top{display:flex;justify-content:space-between;gap:8px}
+    .task-title{font-weight:700}
+    .task-meta{color:var(--muted);font-size:12px;margin:7px 0}
+    .badges{display:flex;gap:6px;flex-wrap:wrap}
+    .badge{font-size:11px;padding:4px 8px;border-radius:999px;background:#edf2f0}
+    .p-alta{background:#fbe9e7;color:#a43428}
+    .p-media{background:#fff4d6;color:#8b5b00}
+    .p-baja{background:#e8f0fb;color:#2b5e9b}
+    .task-actions{display:flex;gap:6px;margin-top:10px}
+    .task-actions button{padding:7px 9px;font-size:12px;background:#edf2f0;color:var(--ink)}
+    .task-progress{display:grid;grid-template-columns:1fr 48px;gap:8px;align-items:center;margin-top:10px}
+    .task-progress input{padding:0}
+    .empty{color:var(--muted);text-align:center;padding:34px 10px}
+    dialog{border:0;border-radius:18px;padding:0;max-width:620px;width:calc(100% - 30px);box-shadow:0 30px 80px rgba(0,0,0,.22)}
+    dialog::backdrop{background:rgba(10,30,25,.45)}
+    .modal{padding:22px}
+    .modal h3{margin-top:0}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .full{grid-column:1/-1}
+    label{font-size:13px;color:var(--muted);display:block;margin-bottom:5px}
+    textarea{width:100%;min-height:90px;border:1px solid var(--line);border-radius:10px;padding:10px;font:inherit}
+    .modal-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:18px}
+    .note{background:#eaf4f0;border-left:4px solid var(--brand);padding:12px 14px;border-radius:10px;margin-bottom:18px;color:#335a50}
+    .list-view{display:none;background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:auto}
+    table{width:100%;border-collapse:collapse;min-width:980px}
+    th,td{padding:11px 12px;text-align:left;border-bottom:1px solid var(--line);font-size:13px}
+    th{background:#edf3f0}
+    @media(max-width:1050px){.summary{grid-template-columns:repeat(2,1fr)}.controls{grid-template-columns:1fr 1fr}.board{grid-template-columns:1fr}}
+    @media(max-width:650px){header{flex-direction:column}.toolbar{justify-content:flex-start}.summary{grid-template-columns:1fr}.controls{grid-template-columns:1fr}.app{padding:14px}.form-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div>
+      <h1>Cofki OS · Roadmap de Desarrollo</h1>
+      <div class="subtitle">Plan de trabajo del 5 de agosto al 31 de diciembre de 2026</div>
+    </div>
+    <div class="toolbar">
+      <button class="secondary" id="viewBtn">Vista tabla</button>
+      <button class="secondary" id="exportBtn">Exportar JSON</button>
+      <label class="btn secondary" for="importFile">Importar JSON</label>
+      <input id="importFile" type="file" accept=".json" hidden />
+      <button class="primary" id="addBtn">+ Nueva app</button>
+    </div>
+  </header>
+
+  <div class="note">
+    Los cambios se guardan automáticamente en este navegador. Puedes exportar un respaldo en JSON y volverlo a importar.
+  </div>
+
+  <section class="summary">
+    <div class="metric"><div class="label">Total de apps</div><div class="value" id="totalMetric">0</div></div>
+    <div class="metric"><div class="label">Terminadas</div><div class="value" id="doneMetric">0</div></div>
+    <div class="metric"><div class="label">En desarrollo</div><div class="value" id="progressMetric">0</div></div>
+    <div class="metric"><div class="label">Pendientes</div><div class="value" id="todoMetric">0</div></div>
+    <div class="metric">
+      <div class="label">Avance general</div><div class="value" id="overallMetric">0%</div>
+      <div class="progress-wrap"><div class="progress-bar" id="overallBar"></div></div>
+    </div>
+  </section>
+
+  <section class="controls">
+    <input id="search" placeholder="Buscar app, módulo o responsable..." />
+    <select id="filterModule"><option value="">Todos los módulos</option></select>
+    <select id="filterPriority"><option value="">Todas las prioridades</option><option>Alta</option><option>Media</option><option>Baja</option></select>
+    <select id="filterStatus"><option value="">Todos los estatus</option><option>Por desarrollar</option><option>En desarrollo</option><option>Terminada</option></select>
+    <select id="sortBy"><option value="date">Ordenar por fecha</option><option value="priority">Ordenar por prioridad</option><option value="progress">Ordenar por avance</option></select>
+  </section>
+
+  <div class="months" id="monthTabs"></div>
+
+  <section class="board" id="board">
+    <div class="column" data-status="Por desarrollar"><h2>Por desarrollar <span id="countTodo">0</span></h2><div id="todoCol"></div></div>
+    <div class="column" data-status="En desarrollo"><h2>En desarrollo <span id="countProgress">0</span></h2><div id="progressCol"></div></div>
+    <div class="column" data-status="Terminada"><h2>Terminadas <span id="countDone">0</span></h2><div id="doneCol"></div></div>
+  </section>
+
+  <section class="list-view" id="listView">
+    <table>
+      <thead><tr><th>App</th><th>Módulo</th><th>Prioridad</th><th>Estatus</th><th>Inicio</th><th>Fecha esperada</th><th>Avance</th><th>Responsable</th><th></th></tr></thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </section>
+</div>
+
+<dialog id="taskDialog">
+  <div class="modal">
+    <h3 id="modalTitle">Nueva app</h3>
+    <form id="taskForm">
+      <input type="hidden" id="taskId" />
+      <div class="form-grid">
+        <div class="full"><label>Nombre de la app</label><input id="name" required /></div>
+        <div><label>Módulo</label><input id="module" required /></div>
+        <div><label>Prioridad</label><select id="priority"><option>Alta</option><option>Media</option><option>Baja</option></select></div>
+        <div><label>Estatus</label><select id="status"><option>Por desarrollar</option><option>En desarrollo</option><option>Terminada</option></select></div>
+        <div><label>Avance (%)</label><input id="progress" type="number" min="0" max="100" value="0" /></div>
+        <div><label>Fecha de inicio</label><input id="startDate" type="date" /></div>
+        <div><label>Fecha esperada</label><input id="dueDate" type="date" required /></div>
+        <div><label>Responsable</label><input id="owner" placeholder="Omar / equipo / proveedor" /></div>
+        <div class="full"><label>Notas / alcance</label><textarea id="notes"></textarea></div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="secondary" id="cancelBtn">Cancelar</button>
+        <button type="button" class="danger" id="deleteBtn" style="display:none">Eliminar</button>
+        <button type="submit" class="primary">Guardar</button>
+      </div>
+    </form>
+  </div>
+</dialog>
+
+<script>
+const seed = [
+  ["Inventarios diarios","Operación","Alta","Terminada","2026-08-05","2026-08-05",100,"Omar","App existente"],
+  ["Pipeline de candidatos","Recursos Humanos","Alta","Terminada","2026-08-05","2026-08-05",100,"Omar","App existente"],
+  ["Reservas de clientes","Clientes","Alta","Terminada","2026-08-05","2026-08-05",100,"Omar","App existente"],
+
+  ["Inventarios semanales","Operación","Alta","Por desarrollar","2026-08-05","2026-08-06",0,"Omar","Conteo de todos los insumos por sucursal"],
+  ["Checklist de apertura","Operación","Alta","Por desarrollar","2026-08-07","2026-08-08",0,"Omar",""],
+  ["Checklist de cierre","Operación","Alta","Por desarrollar","2026-08-09","2026-08-10",0,"Omar",""],
+  ["Bitácora de incidencias","Operación","Alta","Por desarrollar","2026-08-11","2026-08-12",0,"Omar",""],
+  ["Mantenimiento","Operación","Alta","Por desarrollar","2026-08-13","2026-08-14",0,"Omar",""],
+  ["Limpieza y sanitización","Operación","Media","Por desarrollar","2026-08-15","2026-08-16",0,"Omar",""],
+  ["Control de temperaturas","Operación","Alta","Por desarrollar","2026-08-17","2026-08-18",0,"Omar",""],
+  ["Producción diaria","Operación","Media","Por desarrollar","2026-08-19","2026-08-20",0,"Omar",""],
+  ["Mermas","Operación","Alta","Por desarrollar","2026-08-21","2026-08-22",0,"Omar",""],
+  ["Recepción de proveedores","Operación","Alta","Por desarrollar","2026-08-23","2026-08-24",0,"Omar",""],
+  ["Transferencias entre sucursales","Operación","Media","Por desarrollar","2026-08-25","2026-08-26",0,"Omar",""],
+  ["Auditorías operativas","Operación","Alta","Por desarrollar","2026-08-27","2026-08-29",0,"Omar",""],
+
+  ["Registro de movimientos","Finanzas","Alta","Por desarrollar","2026-09-01","2026-09-02",0,"Omar",""],
+  ["Tesorería","Finanzas","Alta","Por desarrollar","2026-09-03","2026-09-04",0,"Omar",""],
+  ["Caja por sucursal","Finanzas","Alta","Por desarrollar","2026-09-05","2026-09-06",0,"Omar",""],
+  ["Flujo de efectivo","Finanzas","Alta","Por desarrollar","2026-09-07","2026-09-09",0,"Omar",""],
+  ["Bancos","Finanzas","Alta","Por desarrollar","2026-09-10","2026-09-11",0,"Omar",""],
+  ["Conciliaciones","Finanzas","Alta","Por desarrollar","2026-09-12","2026-09-14",0,"Omar",""],
+  ["Estado de Resultados","Finanzas","Alta","Por desarrollar","2026-09-15","2026-09-17",0,"Omar",""],
+  ["Balance General","Finanzas","Alta","Por desarrollar","2026-09-18","2026-09-20",0,"Omar",""],
+  ["Presupuesto","Finanzas","Alta","Por desarrollar","2026-09-21","2026-09-22",0,"Omar",""],
+  ["Forecast","Finanzas","Media","Por desarrollar","2026-09-23","2026-09-24",0,"Omar",""],
+  ["Cuentas por pagar","Finanzas","Alta","Por desarrollar","2026-09-25","2026-09-27",0,"Omar",""],
+  ["Cuentas por cobrar","Finanzas","Media","Por desarrollar","2026-09-28","2026-09-30",0,"Omar",""],
+
+  ["Solicitudes de compra","Compras e Inventarios","Alta","Por desarrollar","2026-10-01","2026-10-02",0,"Omar",""],
+  ["Órdenes de compra","Compras e Inventarios","Alta","Por desarrollar","2026-10-03","2026-10-04",0,"Omar",""],
+  ["Catálogo de proveedores","Compras e Inventarios","Alta","Por desarrollar","2026-10-05","2026-10-06",0,"Omar",""],
+  ["Comparativo de precios","Compras e Inventarios","Media","Por desarrollar","2026-10-07","2026-10-08",0,"Omar",""],
+  ["Inventario valorizado","Compras e Inventarios","Alta","Por desarrollar","2026-10-09","2026-10-10",0,"Omar",""],
+  ["Reabasto automático","Compras e Inventarios","Media","Por desarrollar","2026-10-11","2026-10-13",0,"Omar",""],
+  ["Dashboard Ejecutivo","Dashboard Ejecutivo","Alta","Por desarrollar","2026-10-14","2026-10-16",0,"Omar",""],
+  ["Dashboard Operación","Business Intelligence","Alta","Por desarrollar","2026-10-17","2026-10-18",0,"Omar",""],
+  ["Dashboard Finanzas","Business Intelligence","Alta","Por desarrollar","2026-10-19","2026-10-20",0,"Omar",""],
+  ["Dashboard Comercial","Business Intelligence","Media","Por desarrollar","2026-10-21","2026-10-22",0,"Omar",""],
+  ["Dashboard RH","Business Intelligence","Media","Por desarrollar","2026-10-23","2026-10-24",0,"Omar",""],
+  ["IA Analítica básica","Business Intelligence","Media","Por desarrollar","2026-10-25","2026-10-28",0,"Omar",""],
+
+  ["CRM de clientes","Clientes","Alta","Por desarrollar","2026-11-01","2026-11-03",0,"Omar",""],
+  ["Historial de visitas","Clientes","Media","Por desarrollar","2026-11-04","2026-11-05",0,"Omar",""],
+  ["Eventos","Clientes","Media","Por desarrollar","2026-11-06","2026-11-07",0,"Omar",""],
+  ["Membresías","Clientes","Alta","Por desarrollar","2026-11-08","2026-11-10",0,"Omar",""],
+  ["Encuestas","Clientes","Media","Por desarrollar","2026-11-11","2026-11-12",0,"Omar",""],
+  ["Quejas y sugerencias","Clientes","Alta","Por desarrollar","2026-11-13","2026-11-14",0,"Omar",""],
+  ["Calendario de contenido","Marketing","Media","Por desarrollar","2026-11-15","2026-11-16",0,"Omar",""],
+  ["Biblioteca multimedia","Marketing","Baja","Por desarrollar","2026-11-17","2026-11-18",0,"Omar",""],
+  ["Influencers","Marketing","Media","Por desarrollar","2026-11-19","2026-11-20",0,"Omar",""],
+  ["Redes Sociales","Marketing","Alta","Por desarrollar","2026-11-21","2026-11-23",0,"Omar","Comparativo por red social"],
+  ["Comparativo de competencia","Marketing","Alta","Por desarrollar","2026-11-24","2026-11-26",0,"Omar",""],
+  ["Dashboard Marketing","Marketing","Media","Por desarrollar","2026-11-27","2026-11-30",0,"Omar",""],
+
+  ["Manuales y SOPs","Administración","Media","Por desarrollar","2026-12-01","2026-12-02",0,"Omar",""],
+  ["Documentos","Administración","Media","Por desarrollar","2026-12-03","2026-12-04",0,"Omar",""],
+  ["Contratos","Administración","Media","Por desarrollar","2026-12-05","2026-12-06",0,"Omar",""],
+  ["CRM de interesados en franquicia","Franquicias","Alta","Por desarrollar","2026-12-07","2026-12-09",0,"Omar",""],
+  ["Funnel de franquicias","Franquicias","Alta","Por desarrollar","2026-12-10","2026-12-12",0,"Omar",""],
+  ["Pipeline de expansión","Franquicias","Alta","Por desarrollar","2026-12-13","2026-12-14",0,"Omar",""],
+  ["Dashboard de franquicias","Franquicias","Media","Por desarrollar","2026-12-15","2026-12-16",0,"Omar",""],
+  ["IA Franquicias","Franquicias","Baja","Por desarrollar","2026-12-17","2026-12-19",0,"Omar",""],
+  ["Integraciones base","Integraciones","Alta","Por desarrollar","2026-12-20","2026-12-22",0,"Omar",""],
+  ["IA Cofki v1","IA Cofki","Alta","Por desarrollar","2026-12-23","2026-12-27",0,"Omar",""],
+  ["Dashboard General","Dashboard Ejecutivo","Alta","Por desarrollar","2026-12-28","2026-12-29",0,"Omar",""],
+  ["Centro de notificaciones","Integraciones","Alta","Por desarrollar","2026-12-30","2026-12-31",0,"Omar",""]
+].map((x,i)=>({id:crypto.randomUUID ? crypto.randomUUID() : String(Date.now()+i),name:x[0],module:x[1],priority:x[2],status:x[3],startDate:x[4],dueDate:x[5],progress:x[6],owner:x[7],notes:x[8]}));
+
+let tasks = JSON.parse(localStorage.getItem("cofkiRoadmap2026") || "null") || seed;
+let selectedMonth = "";
+let tableMode = false;
+
+const $ = id => document.getElementById(id);
+const months = [
+  ["","Todos"],["2026-08","Agosto"],["2026-09","Septiembre"],["2026-10","Octubre"],["2026-11","Noviembre"],["2026-12","Diciembre"]
+];
+
+function save(){ localStorage.setItem("cofkiRoadmap2026", JSON.stringify(tasks)); }
+function esc(s=""){return s.replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+function fmt(d){ if(!d) return "—"; return new Date(d+"T12:00:00").toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"}); }
+
+function filtered(){
+  const q=$("search").value.toLowerCase();
+  const fm=$("filterModule").value, fp=$("filterPriority").value, fs=$("filterStatus").value;
+  const ps={Alta:1,Media:2,Baja:3};
+  return tasks.filter(t=>
+    (!q || [t.name,t.module,t.owner,t.notes].join(" ").toLowerCase().includes(q)) &&
+    (!fm || t.module===fm) && (!fp || t.priority===fp) && (!fs || t.status===fs) &&
+    (!selectedMonth || t.dueDate.startsWith(selectedMonth))
+  ).sort((a,b)=>{
+    const s=$("sortBy").value;
+    if(s==="priority") return ps[a.priority]-ps[b.priority] || a.dueDate.localeCompare(b.dueDate);
+    if(s==="progress") return b.progress-a.progress;
+    return a.dueDate.localeCompare(b.dueDate);
+  });
+}
+
+function renderModules(){
+  const mods=[...new Set(tasks.map(t=>t.module))].sort();
+  const current=$("filterModule").value;
+  $("filterModule").innerHTML='<option value="">Todos los módulos</option>'+mods.map(m=>`<option ${m===current?"selected":""}>${esc(m)}</option>`).join("");
+}
+function renderMonths(){
+  $("monthTabs").innerHTML=months.map(m=>`<button class="month-tab ${selectedMonth===m[0]?"active":""}" data-month="${m[0]}">${m[1]}</button>`).join("");
+  document.querySelectorAll(".month-tab").forEach(b=>b.addEventListener("click",()=>{selectedMonth=b.dataset.month;render();}));
+}
+function taskCard(t){
+  return `<article class="task">
+    <div class="task-top"><div class="task-title">${esc(t.name)}</div><span class="badge p-${t.priority.toLowerCase()}">${t.priority}</span></div>
+    <div class="task-meta">${esc(t.module)} · Fecha esperada: ${fmt(t.dueDate)}</div>
+    <div class="badges"><span class="badge">${esc(t.owner||"Sin responsable")}</span><span class="badge">${fmt(t.startDate)} → ${fmt(t.dueDate)}</span></div>
+    <div class="task-progress"><input type="range" min="0" max="100" value="${t.progress}" data-progress="${t.id}"><strong>${t.progress}%</strong></div>
+    <div class="task-actions"><button data-edit="${t.id}">Editar</button><button data-next="${t.id}">Cambiar estatus</button></div>
+  </article>`;
+}
+function render(){
+  save(); renderModules(); renderMonths();
+  const data=filtered();
+  const groups={"Por desarrollar":[],"En desarrollo":[],"Terminada":[]};
+  data.forEach(t=>groups[t.status].push(t));
+  $("todoCol").innerHTML=groups["Por desarrollar"].map(taskCard).join("")||'<div class="empty">Sin apps</div>';
+  $("progressCol").innerHTML=groups["En desarrollo"].map(taskCard).join("")||'<div class="empty">Sin apps</div>';
+  $("doneCol").innerHTML=groups["Terminada"].map(taskCard).join("")||'<div class="empty">Sin apps</div>';
+  $("countTodo").textContent=groups["Por desarrollar"].length;
+  $("countProgress").textContent=groups["En desarrollo"].length;
+  $("countDone").textContent=groups["Terminada"].length;
+
+  $("tableBody").innerHTML=data.map(t=>`<tr>
+    <td><strong>${esc(t.name)}</strong></td><td>${esc(t.module)}</td><td>${t.priority}</td><td>${t.status}</td>
+    <td>${fmt(t.startDate)}</td><td>${fmt(t.dueDate)}</td><td>${t.progress}%</td><td>${esc(t.owner||"—")}</td>
+    <td><button class="secondary" data-edit="${t.id}">Editar</button></td></tr>`).join("");
+
+  const done=tasks.filter(t=>t.status==="Terminada").length, prog=tasks.filter(t=>t.status==="En desarrollo").length;
+  const avg=Math.round(tasks.reduce((s,t)=>s+Number(t.progress||0),0)/tasks.length);
+  $("totalMetric").textContent=tasks.length; $("doneMetric").textContent=done; $("progressMetric").textContent=prog;
+  $("todoMetric").textContent=tasks.length-done-prog; $("overallMetric").textContent=avg+"%"; $("overallBar").style.width=avg+"%";
+
+  document.querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click",()=>openEdit(b.dataset.edit)));
+  document.querySelectorAll("[data-next]").forEach(b=>b.addEventListener("click",()=>cycleStatus(b.dataset.next)));
+  document.querySelectorAll("[data-progress]").forEach(r=>r.addEventListener("input",()=>{
+    const t=tasks.find(x=>x.id===r.dataset.progress); t.progress=Number(r.value);
+    if(t.progress===100)t.status="Terminada"; else if(t.progress>0)t.status="En desarrollo"; else t.status="Por desarrollar";
+    save(); render();
+  }));
+}
+function cycleStatus(id){
+  const t=tasks.find(x=>x.id===id);
+  const order=["Por desarrollar","En desarrollo","Terminada"];
+  t.status=order[(order.indexOf(t.status)+1)%3];
+  t.progress=t.status==="Terminada"?100:t.status==="En desarrollo"?Math.max(10,Math.min(t.progress,90)):0;
+  render();
+}
+function openEdit(id){
+  const t=tasks.find(x=>x.id===id);
+  $("modalTitle").textContent=t?"Editar app":"Nueva app";
+  $("taskId").value=t?.id||""; $("name").value=t?.name||""; $("module").value=t?.module||"";
+  $("priority").value=t?.priority||"Alta"; $("status").value=t?.status||"Por desarrollar";
+  $("progress").value=t?.progress||0; $("startDate").value=t?.startDate||"";
+  $("dueDate").value=t?.dueDate||""; $("owner").value=t?.owner||"Omar"; $("notes").value=t?.notes||"";
+  $("deleteBtn").style.display=t?"inline-block":"none"; $("taskDialog").showModal();
+}
+$("taskForm").addEventListener("submit",e=>{
+  e.preventDefault();
+  const obj={id:$("taskId").value||crypto.randomUUID(),name:$("name").value.trim(),module:$("module").value.trim(),
+    priority:$("priority").value,status:$("status").value,progress:Number($("progress").value||0),
+    startDate:$("startDate").value,dueDate:$("dueDate").value,owner:$("owner").value.trim(),notes:$("notes").value.trim()};
+  if(obj.status==="Terminada")obj.progress=100;
+  const i=tasks.findIndex(t=>t.id===obj.id); if(i>=0)tasks[i]=obj; else tasks.push(obj);
+  $("taskDialog").close(); render();
+});
+$("deleteBtn").addEventListener("click",()=>{const id=$("taskId").value;if(confirm("¿Eliminar esta app del roadmap?")){tasks=tasks.filter(t=>t.id!==id);$("taskDialog").close();render();}});
+$("addBtn").addEventListener("click",()=>openEdit());
+$("cancelBtn").addEventListener("click",()=>$("taskDialog").close());
+["search","filterModule","filterPriority","filterStatus","sortBy"].forEach(id=>$(id).addEventListener(id==="search"?"input":"change",render));
+$("viewBtn").addEventListener("click",()=>{tableMode=!tableMode;$("board").style.display=tableMode?"none":"grid";$("listView").style.display=tableMode?"block":"none";$("viewBtn").textContent=tableMode?"Vista tablero":"Vista tabla";});
+$("exportBtn").addEventListener("click",()=>{
+  const blob=new Blob([JSON.stringify(tasks,null,2)],{type:"application/json"}); const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);a.download="cofki-os-roadmap-2026.json";a.click();URL.revokeObjectURL(a.href);
+});
+$("importFile").addEventListener("change",async e=>{
+  try{const data=JSON.parse(await e.target.files[0].text());if(!Array.isArray(data))throw new Error();tasks=data;render();alert("Roadmap importado.");}
+  catch{alert("No se pudo importar el archivo.");}
+});
+render();
+</script>
+</body>
+</html>
