@@ -3,6 +3,7 @@
 Portal centralizado para las apps internas de Cofki Café, con 3 niveles de acceso por contraseña:
 
 - **socios** — tú y tu socio, ven todo
+- **líderes** — ven apps de líderes + gerentes + equipo
 - **gerentes** — ven apps de gerentes + equipo
 - **equipo** — solo ven apps marcadas como "equipo"
 
@@ -53,7 +54,7 @@ Edita `netlify/functions/lib/apps.js` — es un arreglo simple:
   name: 'Nombre que se muestra',
   description: 'Una línea de descripción',
   url: 'https://tu-app.netlify.app',
-  minTier: 'equipo', // 'socios' | 'gerentes' | 'equipo'
+  minTier: 'equipo', // 'socios' | 'lideres' | 'gerentes' | 'equipo'
 }
 ```
 

@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 
-// Jerarquía de niveles: socios ve todo, gerentes ve gerentes+equipo, equipo solo ve equipo
-const ROLE_LEVEL = { equipo: 1, gerentes: 2, socios: 3 };
+// Jerarquía de niveles: socios ve todo, lideres ve lideres+gerentes+equipo, gerentes ve gerentes+equipo, equipo solo ve equipo
+const ROLE_LEVEL = { equipo: 1, gerentes: 2, lideres: 3, socios: 4 };
 
 function sign(payload, secret) {
   const body = Buffer.from(JSON.stringify(payload)).toString('base64url');

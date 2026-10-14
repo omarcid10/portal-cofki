@@ -12,7 +12,11 @@ exports.handler = async (event) => {
 
   const userLevel = ROLE_LEVEL[session.role] || 0;
   const visible = APPS
-    .filter((app) => (ROLE_LEVEL[app.minTier] || 0) <= userLevel)
+    .filter((app) => {
+      // Si la app define onlyTiers, SOLO esos niveles la ven (sin jerarquía).
+      if (Array.isArray(app.onlyTiers)) return app.onlyTiers.includes(session.role);
+      return (ROLE_LEVEL[app.minTier] || 0) <= userLevel;
+    })
     .map((app) => ({ id: app.id, name: app.name, description: app.description, url: app.url, minTier: app.minTier }));
 
   return {

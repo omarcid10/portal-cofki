@@ -1,6 +1,8 @@
 // Catálogo de apps del portal.
-// minTier: "socios" | "gerentes" | "equipo" — nivel MÍNIMO que puede verla.
-// (socios ve todo, gerentes ve gerentes+equipo, equipo solo ve equipo)
+// minTier: "socios" | "lideres" | "gerentes" | "equipo" — nivel MÍNIMO que puede verla.
+// (socios ve todo, lideres ve lideres+gerentes+equipo, gerentes ve gerentes+equipo, equipo solo ve equipo)
+//
+// onlyTiers (opcional): lista exacta de niveles que la ven, sin jerarquía (ej. ['gerentes','equipo']).
 //
 // Para agregar una app nueva, copia un bloque y edítalo. Para quitar una, bórralo.
 
@@ -60,5 +62,20 @@ module.exports = [
     description: 'Auditorías semanales de líderes A&B y Front, con planes de acción y dashboard',
     url: 'https://cofki-auditorias.netlify.app/',
     minTier: 'gerentes',
+  },
+  {
+    id: 'cuentas-por-pagar',
+    name: 'Cuentas por Pagar',
+    description: 'Control y seguimiento de cuentas por pagar',
+    url: 'https://cofki-cuentas-por-pagar.netlify.app/r/16db6de80e3a4762bfda8dc826133ffd6454ebd685e84bc386a1e758614518dd',
+    minTier: 'lideres',
+  },
+  {
+    id: 'registro-facturas-proveedores',
+    name: 'Registro Facturas Proveedores',
+    description: 'Registro operativo de facturas de proveedores',
+    url: 'https://registro-facturas-cofki.netlify.app/',
+    minTier: 'equipo',
+    onlyTiers: ['gerentes', 'equipo'],
   },
 ];

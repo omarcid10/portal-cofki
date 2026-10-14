@@ -62,6 +62,7 @@
     color:#00695C;
   }
   .role-pill.gerentes{ background:var(--pastel-orange); color:#B8620B; }
+  .role-pill.lideres{ background:#E0E0E0; color:#424242; }
   .role-pill.socios{ background:var(--pastel-red); color:#C62828; }
   .actions{
     display:flex;
@@ -144,6 +145,7 @@
     transition:transform .15s ease, box-shadow .15s ease;
   }
   .app-card.gerentes{ border-left-color:var(--honey); }
+  .app-card.lideres{ border-left-color:var(--elephant); }
   .app-card.socios{ border-left-color:var(--candy); }
   .app-card:hover{
     transform:translateY(-2px);
@@ -202,7 +204,7 @@
 </main>
 
 <script>
-const ROLE_LABEL = { socios: 'Socios', gerentes: 'Gerentes', equipo: 'Equipo' };
+const ROLE_LABEL = { socios: 'Socios', lideres: 'Líderes', gerentes: 'Gerentes', equipo: 'Equipo' };
 let allApps = [];
 
 function renderApps(apps) {
@@ -233,7 +235,7 @@ async function load() {
 
     const rolePill = document.getElementById('rolePill');
     rolePill.textContent = ROLE_LABEL[data.role] || data.role;
-    if (data.role === 'gerentes' || data.role === 'socios') {
+    if (data.role === 'gerentes' || data.role === 'lideres' || data.role === 'socios') {
       rolePill.classList.add(data.role);
     }
     if (data.role === 'socios') {

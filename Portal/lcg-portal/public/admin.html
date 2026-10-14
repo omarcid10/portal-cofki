@@ -60,6 +60,7 @@
   }
   .tier-card.equipo{ border-left:4px solid var(--jungle); }
   .tier-card.gerentes{ border-left:4px solid var(--honey); }
+  .tier-card.lideres{ border-left:4px solid var(--elephant); }
   .tier-card.socios{ border-left:4px solid var(--candy); }
   .tier-name{
     font-weight:700;
@@ -114,9 +115,10 @@
 </main>
 
 <script>
-const TIERS = ['socios', 'gerentes', 'equipo'];
+const TIERS = ['socios', 'lideres', 'gerentes', 'equipo'];
 const TIER_DESC = {
   socios: 'Tú y tu socio',
+  lideres: 'Líderes (A&B y Front)',
   gerentes: 'Gerentes del equipo',
   equipo: 'Cualquiera del equipo',
 };
