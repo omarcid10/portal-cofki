@@ -67,7 +67,7 @@ module.exports = [
     id: 'cuentas-por-pagar',
     name: 'Cuentas por Pagar',
     description: 'Control y seguimiento de cuentas por pagar',
-    url: 'https://cofki-cuentas-por-pagar.netlify.app/r/16db6de80e3a4762bfda8dc826133ffd6454ebd685e84bc386a1e758614518dd',
+    url: 'https://cofki-cuentas-por-pagar.netlify.app/',
     minTier: 'lideres',
   },
   {
