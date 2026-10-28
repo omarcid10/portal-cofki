@@ -78,4 +78,18 @@ module.exports = [
     minTier: 'equipo',
     onlyTiers: ['gerentes', 'equipo'],
   },
+  {
+    id: 'estandarizacion-recetas',
+    name: 'Estandarización de Recetas',
+    description: 'Biblioteca y gestión de recetas estandarizadas',
+    url: 'https://cofki-recetas.netlify.app/',
+    minTier: 'lideres',
+  },
+  {
+    id: 'dashboards-comerciales-financieros',
+    name: 'Dashboards Comerciales y Financieros',
+    description: 'Indicadores comerciales y financieros de Cofki',
+    url: 'https://cofki-dashboards.netlify.app/',
+    minTier: 'socios',
+  },
 ];
