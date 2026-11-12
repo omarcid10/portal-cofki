@@ -92,4 +92,11 @@ module.exports = [
     url: 'https://cofki-dashboards.netlify.app/',
     minTier: 'socios',
   },
+  {
+    id: 'solicitudes-compras',
+    name: 'Solicitudes de Compras',
+    description: 'Solicitudes de artículos de las sucursales, autorización y seguimiento',
+    url: 'https://cofki-compras.netlify.app/sucursal',
+    minTier: 'gerentes',
+  },
 ];
