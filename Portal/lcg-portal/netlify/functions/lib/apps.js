@@ -99,4 +99,11 @@ module.exports = [
     url: 'https://cofki-compras.netlify.app/sucursal',
     minTier: 'gerentes',
   },
+  {
+    id: 'christmas-tracker',
+    name: 'Cofki Christmas Tracker',
+    description: 'Registro diario de la campaña navideña: foto de Santa, sellos, regalos y cartas',
+    url: 'https://cofki-christmas-tracker.netlify.app/',
+    minTier: 'equipo',
+  },
 ];
