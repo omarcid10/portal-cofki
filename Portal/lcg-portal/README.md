@@ -1,73 +1,48 @@
-# Portal Cofki — acceso por nivel
+# Portal Cofki — usuarios individuales (Fase A)
 
-Portal centralizado para las apps internas de Cofki Café, con 3 niveles de acceso por contraseña:
+Portal centralizado para las apps internas de Cofki Café. Cada persona entra con **su correo y su contraseña** (Supabase Auth) y ve solo las apps que le corresponden por **rol** y **sucursal**.
 
-- **socios** — tú y tu socio, ven todo
-- **líderes** — ven apps de líderes + gerentes + equipo
-- **gerentes** — ven apps de gerentes + equipo
-- **equipo** — solo ven apps marcadas como "equipo"
+Roles: **Socios, Líderes, Gerentes, Supervisores, Colaboradores y Administrativos.** No hay jerarquía automática: cada app lista exactamente qué roles la ven.
 
-Cada nivel tiene su propia contraseña, y **tú puedes cambiarlas cuando quieras** desde `/admin.html` (solo visible si entraste con la contraseña de socios) — sin tocar código ni volver a desplegar.
+Un socio administra todo desde `/admin.html`: usuarios (crear, editar rol y sucursales, desactivar, restablecer contraseña, eliminar), catálogo de aplicaciones (agregar, editar, activar/desactivar, asignar roles y sucursales) y auditoría de cambios. Sin tocar código.
 
-## Cómo funciona la seguridad (leer antes de usar)
+## Cómo funciona
 
-- Las contraseñas se guardan **hasheadas** (no en texto plano) en Netlify Blobs, un almacén persistente ligado a tu sitio.
-- Al entrar, el servidor te da una cookie firmada (HttpOnly, no accesible desde JavaScript) que dice tu rol.
-- La lista de apps que ves **se filtra en el servidor**, no en el navegador — alguien con el nivel "equipo" nunca recibe las URLs de las apps de "socios", ni buscando en el código de la página.
-- Esto es un nivel de seguridad razonable para uso interno de equipo (evita que cualquiera con el link del portal vea todo). **No es lo mismo que proteger cada app individualmente**: si alguien ya tiene el link directo de una app (ej. la de inventario), ese link sigue abierto por su cuenta, a menos que también le pongas su propia protección. Si quieres, en otro momento puedo ayudarte a ponerle una contraseña a cada app por separado también.
+- Los usuarios viven en **Supabase Auth**; el portal agrega las tablas `portal_perfiles`, `portal_apps`, `portal_sucursales` y `portal_auditoria` (script: `supabase/portal_setup.sql`).
+- El login lo valida una función de Netlify contra Supabase y entrega una cookie firmada (HttpOnly) que solo trae el id del usuario. En **cada** petición se consulta Supabase: si un socio desactiva o elimina a alguien, pierde el acceso al instante.
+- La llave `SUPABASE_SERVICE_ROLE_KEY` vive solo en las variables de Netlify (nunca en el navegador ni en GitHub).
+- El catálogo de apps se filtra en el servidor por rol y sucursal. Además hay políticas RLS en Supabase para el acceso directo.
+- **Límite importante:** el portal controla quién *ve* cada app. Cada app es un sitio independiente: quien tenga su link directo todavía puede abrirla. Protegerlas de verdad requiere inicio de sesión compartido (fase futura).
 
-## Desplegar en Netlify
+## Variables de entorno (Netlify → Site configuration → Environment variables)
 
-1. **Sube esta carpeta a un repositorio de GitHub** (Netlify despliega mejor desde Git que por drag-and-drop cuando hay funciones):
-   ```bash
-   cd lcg-portal
-   git init
-   git add .
-   git commit -m "Portal Cofki inicial"
-   git remote add origin <tu-repo-nuevo-en-github>
-   git push -u origin main
-   ```
+| Variable | Valor |
+|---|---|
+| `SESSION_SECRET` | La que ya tienes (obligatoria) |
+| `SUPABASE_URL` | URL del proyecto, ej. `https://xxxx.supabase.co` |
+| `SUPABASE_SERVICE_ROLE_KEY` | Llave **service_role** (secreta) de Supabase → Project Settings → API |
+| `SUPABASE_ANON_KEY` | Opcional, llave **anon** (pública) del mismo lugar |
+| `LEGACY_LOGIN` | Pon `off` cuando todos tengan usuario, para apagar el acceso por contraseña de nivel |
+| `BLOBS_SITE_ID`, `BLOBS_TOKEN` | Las que ya tienes (solo para el acceso temporal por nivel) |
 
-2. **En Netlify**: "Add new site" → "Import an existing project" → conecta el repo. Netlify detecta `netlify.toml` automáticamente (build command vacío, publish = `public`, functions = `netlify/functions`).
+## Puesta en marcha
 
-3. **Variables de entorno** (Site settings → Environment variables), agrega:
-   | Variable | Valor |
-   |---|---|
-   | `SESSION_SECRET` | Una cadena larga y aleatoria (ej. genera una con `openssl rand -hex 32`) |
-   | `DEFAULT_PW_SOCIOS` | Contraseña inicial para socios (opcional, si no la pones usa una por defecto) |
-   | `DEFAULT_PW_GERENTES` | Contraseña inicial para gerentes |
-   | `DEFAULT_PW_EQUIPO` | Contraseña inicial para equipo |
-
-   **`SESSION_SECRET` es obligatoria** — sin ella el login no funciona.
-
-4. **Deploy**. Netlify instala `@netlify/blobs` automáticamente (está en `package.json`).
-
-5. Entra a tu sitio, inicia sesión con la contraseña de socios, ve a **Administrar contraseñas** y cámbialas de inmediato por las definitivas.
-
-## Agregar o quitar apps
-
-Edita `netlify/functions/lib/apps.js` — es un arreglo simple:
-
-```js
-{
-  id: 'nombre-unico',
-  name: 'Nombre que se muestra',
-  description: 'Una línea de descripción',
-  url: 'https://tu-app.netlify.app',
-  minTier: 'equipo', // 'socios' | 'lideres' | 'gerentes' | 'equipo'
-}
-```
-
-Ya están cargadas 7: Inventarios Diarios, Inventarios Semanales, Checklist de Apertura y Cierre, Administración de Reservas, Llegadas Hostess - Pueblo Serena, Entrevistas y Auditorías Operativas. Después de editar, haz commit + push y Netlify vuelve a desplegar solo.
-
-## Sobre el diseño
-
-El portal usa la identidad oficial de Cofki (colores Candy, Jungle, Honey, Butter y tipografía Montserrat / Montserrat Alternates, según el Manual de Identidad). El logo vive en `public/assets/` — si lo actualizas, reemplaza esos archivos con el mismo nombre y vuelve a hacer push.
-
-## Cambiar contraseñas más adelante
-
-Ve a `/admin.html` estando logueado como socios. No necesitas tocar código ni redeploy — el cambio es inmediato para todos.
+1. Supabase → SQL Editor → pega y ejecuta `supabase/portal_setup.sql` (se puede correr más de una vez).
+2. Agrega las variables de arriba en Netlify y vuelve a desplegar.
+3. Entra con la contraseña de socios (acceso temporal), ve a **Administrar → Usuarios** y crea tu usuario (rol Socios) y el de tu socio.
+4. Cierra sesión y entra con tu correo. Crea al resto del equipo.
+5. Cuando todos tengan usuario, agrega `LEGACY_LOGIN=off` en Netlify. Las contraseñas por nivel dejan de funcionar.
 
 ## Si alguien sale del equipo
 
-Cambia la contraseña del nivel correspondiente desde `/admin.html`. Esa persona (y cualquiera con esa contraseña vieja) pierde el acceso al instante; nadie más se ve afectado.
+`/admin.html` → Usuarios → **Desactivar** (reversible) o **Eliminar**. Pierde el acceso de inmediato y nadie más se ve afectado. Si el usuario es compartido con otra app de Supabase, “Eliminar” solo le quita el acceso al portal.
+
+## Agregar una app
+
+`/admin.html` → Aplicaciones → **Nueva aplicación**: nombre, URL, estado, roles y sucursales. Aparece al instante.
+
+> `netlify/functions/lib/apps.js` ya no es el catálogo oficial: solo alimenta el acceso temporal por nivel mientras exista.
+
+## Diseño
+
+Usa la identidad oficial de Cofki (Candy, Jungle, Honey, Butter; Montserrat / Montserrat Alternates). El logo vive en `public/assets/`.

@@ -22,188 +22,282 @@
     --ok:#00BFA5;
   }
   *{box-sizing:border-box;}
-  body{
-    margin:0;
-    min-height:100vh;
-    font-family:'Montserrat', sans-serif;
-    background:#FAFAFA;
-    color:var(--elephant);
-  }
-  header{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:20px 40px;
-    background:#fff;
-    border-bottom:1px solid var(--border);
-  }
-  .brand{
-    font-family:'Montserrat Alternates', sans-serif;
-    font-weight:800;
-    font-size:17px;
-  }
+  body{ margin:0; min-height:100vh; font-family:'Montserrat', sans-serif; background:#FAFAFA; color:var(--elephant); }
+  header{ display:flex; align-items:center; justify-content:space-between; padding:20px 40px; background:#fff; border-bottom:1px solid var(--border); }
+  .brand{ font-family:'Montserrat Alternates', sans-serif; font-weight:800; font-size:17px; }
   a.back{ color:var(--seal); font-size:13px; font-weight:600; text-decoration:none; }
   a.back:hover{ color:var(--elephant); }
-  main{
-    max-width:620px;
-    margin:0 auto;
-    padding:44px 40px 80px;
-  }
+  main{ max-width:1040px; margin:0 auto; padding:36px 28px 80px; }
   h1{ font-family:'Montserrat Alternates', sans-serif; font-size:24px; font-weight:800; margin:0 0 6px; }
-  .sub{ color:var(--seal); font-size:14px; margin:0 0 32px; line-height:1.5; }
-  .tier-card{
-    background:#fff;
-    border:1px solid var(--border);
-    border-radius:12px;
-    padding:22px;
-    margin-bottom:16px;
-  }
-  .tier-card.equipo{ border-left:4px solid var(--jungle); }
-  .tier-card.gerentes{ border-left:4px solid var(--honey); }
-  .tier-card.lideres{ border-left:4px solid var(--elephant); }
-  .tier-card.socios{ border-left:4px solid var(--candy); }
-  .tier-name{
-    font-weight:700;
-    font-size:15px;
-    margin:0 0 4px;
-    text-transform:capitalize;
-  }
-  .tier-updated{
-    font-size:12px;
-    color:var(--seal);
-    margin:0 0 16px;
-  }
-  .row{ display:flex; gap:10px; }
-  input[type=text]{
-    flex:1;
-    padding:11px 12px;
-    border-radius:8px;
-    border:1.5px solid var(--border);
-    background:var(--light-gray);
-    color:var(--elephant);
-    font-size:14px;
-    font-family:inherit;
-    outline:none;
-  }
-  input[type=text]:focus{ border-color:var(--jungle); background:#fff; }
-  button{
-    padding:11px 16px;
-    border-radius:8px;
-    border:none;
-    background:var(--jungle);
-    color:#fff;
-    font-weight:700;
-    font-size:13.5px;
-    cursor:pointer;
-    white-space:nowrap;
-  }
+  .sub{ color:var(--seal); font-size:14px; margin:0 0 22px; line-height:1.5; }
+  .banner{ background:var(--pastel-orange); color:#8A4B00; border-radius:10px; padding:12px 16px; font-size:13px; font-weight:600; line-height:1.5; margin-bottom:20px; }
+  .tabs{ display:flex; gap:6px; border-bottom:1px solid var(--border); margin-bottom:22px; flex-wrap:wrap; }
+  .tab{ background:none; border:none; padding:11px 16px; font:inherit; font-weight:700; font-size:13.5px; color:var(--seal); cursor:pointer; border-bottom:3px solid transparent; margin-bottom:-1px; }
+  .tab.active{ color:var(--elephant); border-bottom-color:var(--jungle); }
+  .toolbar{ display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:16px; flex-wrap:wrap; }
+  .toolbar .hint{ color:var(--seal); font-size:13px; }
+  button, .btn{ padding:10px 16px; border-radius:8px; border:none; background:var(--jungle); color:#fff; font:inherit; font-weight:700; font-size:13px; cursor:pointer; white-space:nowrap; }
   button:hover{ filter:brightness(1.06); }
-  button:disabled{ opacity:0.6; cursor:default; }
-  .msg{ font-size:12.5px; margin-top:10px; min-height:14px; font-weight:600; }
-  .msg.ok{ color:var(--jungle); }
-  .msg.err{ color:var(--candy); }
+  button:disabled{ opacity:.6; cursor:default; }
+  button.ghost{ background:#fff; color:var(--elephant); border:1.5px solid var(--border); }
+  button.ghost:hover{ border-color:var(--jungle); filter:none; }
+  button.danger{ background:#fff; color:var(--candy); border:1.5px solid var(--pastel-red); }
+  button.danger:hover{ background:var(--pastel-red); filter:none; }
+  button.sm{ padding:7px 11px; font-size:12px; }
+  .card{ background:#fff; border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+  table{ width:100%; border-collapse:collapse; }
+  th{ text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--seal); padding:12px 16px; background:var(--light-gray); }
+  td{ padding:14px 16px; border-top:1px solid var(--border); font-size:13.5px; vertical-align:middle; }
+  td .main{ font-weight:700; }
+  td .small{ color:var(--seal); font-size:12px; margin-top:2px; }
+  .chips{ display:flex; gap:5px; flex-wrap:wrap; }
+  .chip{ font-size:11px; font-weight:700; padding:3px 9px; border-radius:999px; background:var(--light-gray); color:var(--elephant); }
+  .chip.socios{ background:var(--pastel-red); color:#C62828; }
+  .chip.lideres{ background:#E0E0E0; color:#424242; }
+  .chip.gerentes, .chip.supervisores{ background:var(--pastel-orange); color:#B8620B; }
+  .chip.colaboradores, .chip.administrativos{ background:var(--pastel-teal); color:#00695C; }
+  .chip.off{ background:#EEE; color:#9E9E9E; }
+  .chip.ok{ background:var(--pastel-teal); color:#00695C; }
+  .actions{ display:flex; gap:6px; justify-content:flex-end; flex-wrap:wrap; }
+  .empty{ padding:40px; text-align:center; color:var(--seal); font-size:14px; }
   .denied{ text-align:center; padding:80px 0; color:var(--seal); }
+  .msg{ font-size:13px; font-weight:600; min-height:18px; margin:10px 0 0; }
+  .msg.ok{ color:var(--jungle); } .msg.err{ color:var(--candy); }
+  dialog{ border:none; border-radius:14px; padding:0; width:min(520px, calc(100vw - 32px)); box-shadow:0 30px 80px -20px rgba(0,0,0,.4); }
+  dialog::backdrop{ background:rgba(66,66,66,.45); }
+  .dlg{ padding:26px; max-height:85vh; overflow:auto; }
+  .dlg h2{ font-family:'Montserrat Alternates', sans-serif; font-size:19px; margin:0 0 18px; }
+  .f{ margin-bottom:14px; }
+  .f label.t{ display:block; font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--seal); font-weight:700; margin-bottom:6px; }
+  .f input[type=text], .f input[type=email], .f input[type=url], .f input[type=number], .f input[type=password], .f select, .f textarea{
+    width:100%; padding:10px 12px; border-radius:8px; border:1.5px solid var(--border); background:var(--light-gray); font:inherit; font-size:14px; color:var(--elephant); outline:none; }
+  .f input:focus, .f select:focus, .f textarea:focus{ border-color:var(--jungle); background:#fff; }
+  .f input[readonly]{ opacity:.7; }
+  .f .help{ font-size:12px; color:var(--seal); margin-top:5px; line-height:1.4; }
+  .checks{ display:flex; flex-wrap:wrap; gap:8px 14px; }
+  .checks label{ font-size:13.5px; display:flex; align-items:center; gap:6px; cursor:pointer; }
+  .dlg-actions{ display:flex; justify-content:flex-end; gap:10px; margin-top:20px; }
+  .tier-card{ background:#fff; border:1px solid var(--border); border-radius:12px; padding:22px; margin-bottom:16px; max-width:620px; }
+  .tier-name{ font-weight:700; font-size:15px; margin:0 0 4px; text-transform:capitalize; }
+  .tier-updated{ font-size:12px; color:var(--seal); margin:0 0 16px; }
+  .row{ display:flex; gap:10px; }
+  .row input{ flex:1; padding:11px 12px; border-radius:8px; border:1.5px solid var(--border); background:var(--light-gray); font:inherit; font-size:14px; outline:none; }
+  @media (max-width:760px){
+    header{ padding:16px 18px; } main{ padding:24px 16px 60px; }
+    table, thead, tbody, tr, th, td{ display:block; }
+    thead{ display:none; }
+    tr{ border-top:1px solid var(--border); padding:12px 4px; }
+    td{ border:none; padding:5px 14px; }
+    .actions{ justify-content:flex-start; }
+  }
 </style>
 </head>
 <body>
 <header>
-  <div class="brand">Portal Cofki</div>
+  <div class="brand">Portal Cofki · Administrar</div>
   <a class="back" href="/portal.html">← Volver al portal</a>
 </header>
-<main id="main">
-  <div class="denied">Verificando acceso...</div>
-</main>
+<main id="main"><div class="denied">Verificando acceso...</div></main>
+
+<dialog id="dlgUser"><form class="dlg" id="formUser" method="dialog"></form></dialog>
+<dialog id="dlgApp"><form class="dlg" id="formApp" method="dialog"></form></dialog>
 
 <script>
-const TIERS = ['socios', 'lideres', 'gerentes', 'equipo'];
-const TIER_DESC = {
-  socios: 'Tú y tu socio',
-  lideres: 'Líderes (A&B y Front)',
-  gerentes: 'Gerentes del equipo',
-  equipo: 'Cualquiera del equipo',
-};
+const esc = (t) => String(t == null ? '' : t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const ROLE_LABEL = { socios: 'Socios', lideres: 'Líderes', gerentes: 'Gerentes', supervisores: 'Supervisores', colaboradores: 'Colaboradores', administrativos: 'Administrativos' };
+const ESTADO_LABEL = { disponible: 'Disponible', en_desarrollo: 'En desarrollo', proximamente: 'Próximamente', inactiva: 'Inactiva' };
+const LEGACY_TIERS = ['socios', 'lideres', 'gerentes', 'equipo'];
+
+const S = { legacy: false, tab: 'usuarios', users: [], apps: [], sucursales: [], roles: [], estados: [], yo: null, eventos: [] };
+const main = document.getElementById('main');
+
+async function api(path, opts = {}) {
+  const res = await fetch(path, { headers: { 'Content-Type': 'application/json' }, ...opts, body: opts.body ? JSON.stringify(opts.body) : undefined });
+  if (res.status === 401) { window.location.href = '/index.html'; throw new Error('401'); }
+  let data = null; try { data = await res.json(); } catch (_) {}
+  if (!res.ok) throw new Error((data && data.error) || 'Error inesperado');
+  return data;
+}
+const sucNombre = (cod) => (S.sucursales.find((s) => s.codigo === cod) || {}).nombre || cod;
+const chip = (txt, cls = '') => `<span class="chip ${cls}">${esc(txt)}</span>`;
+const checks = (name, items, selected) => items.map((it) => `<label><input type="checkbox" name="${name}" value="${esc(it.v)}" ${selected.includes(it.v) ? 'checked' : ''}> ${esc(it.t)}</label>`).join('');
+const picked = (form, name) => [...form.querySelectorAll(`input[name="${name}"]:checked`)].map((i) => i.value);
 
 async function init() {
-  const main = document.getElementById('main');
-  const res = await fetch('/api/apps');
-  if (res.status === 401) {
-    window.location.href = '/index.html';
-    return;
-  }
-  const data = await res.json();
-  if (data.role !== 'socios') {
-    main.innerHTML = '<div class="denied">Esta sección es solo para socios.</div>';
-    return;
-  }
+  const me = await api('/api/apps');
+  if (!me.isAdmin) { main.innerHTML = '<div class="denied">Esta sección es solo para socios.</div>'; return; }
+  S.legacy = !!me.legacy;
+  await Promise.all([loadUsers(), loadApps()]);
+  render();
+}
+async function loadUsers() { const d = await api('/api/admin-users'); Object.assign(S, { users: d.users, sucursales: d.sucursales, roles: d.roles, yo: d.yo }); }
+async function loadApps() { const d = await api('/api/admin-apps'); Object.assign(S, { apps: d.apps, estados: d.estados }); if (!S.roles.length) S.roles = d.roles; if (!S.sucursales.length) S.sucursales = d.sucursales; }
+async function loadAudit() { const d = await api('/api/admin-audit'); S.eventos = d.eventos; }
 
+function render() {
+  const tabs = [['usuarios', 'Usuarios'], ['apps', 'Aplicaciones'], ['auditoria', 'Auditoría']];
+  if (S.legacy) tabs.push(['niveles', 'Contraseñas por nivel (temporal)']);
   main.innerHTML = `
-    <h1>Administrar contraseñas</h1>
-    <p class="sub">Cambia la contraseña de cualquier nivel. Se aplica de inmediato — quien tenga la contraseña anterior deja de poder entrar con ella.</p>
-    <div id="tiers"></div>
-  `;
+    <h1>Administración</h1>
+    <p class="sub">Usuarios, accesos y catálogo de aplicaciones del portal.</p>
+    ${S.legacy ? '<div class="banner">Estás dentro con la contraseña de nivel (acceso temporal). Crea tu usuario con correo, entra con él y después desactiva el acceso temporal en Netlify (LEGACY_LOGIN=off).</div>' : ''}
+    <div class="tabs">${tabs.map(([k, t]) => `<button class="tab ${S.tab === k ? 'active' : ''}" data-tab="${k}">${t}</button>`).join('')}</div>
+    <div id="panel"></div>`;
+  main.querySelectorAll('.tab').forEach((b) => b.addEventListener('click', async () => {
+    S.tab = b.dataset.tab;
+    if (S.tab === 'auditoria') await loadAudit();
+    render();
+  }));
+  const p = document.getElementById('panel');
+  if (S.tab === 'usuarios') renderUsers(p);
+  else if (S.tab === 'apps') renderApps(p);
+  else if (S.tab === 'auditoria') renderAudit(p);
+  else renderNiveles(p);
+}
 
-  const tiersEl = document.getElementById('tiers');
-  tiersEl.innerHTML = TIERS.map(tier => `
-    <div class="tier-card ${tier}">
-      <p class="tier-name">${tier}</p>
-      <p class="tier-updated">${TIER_DESC[tier]}</p>
-      <div class="row">
-        <input type="text" id="pw-${tier}" placeholder="Nueva contraseña (mín. 8 caracteres)">
-        <button data-tier="${tier}">Actualizar</button>
-      </div>
-      <p class="msg" id="msg-${tier}"></p>
-    </div>
-  `).join('');
+/* ---------- Usuarios ---------- */
+function renderUsers(p) {
+  p.innerHTML = `
+    <div class="toolbar"><span class="hint">${S.users.length} usuario(s) con acceso al portal</span><button id="newUser">+ Nuevo usuario</button></div>
+    <div class="card">${S.users.length ? `<table><thead><tr><th>Usuario</th><th>Rol</th><th>Sucursales</th><th>Estado</th><th></th></tr></thead><tbody>
+      ${S.users.map((u) => `<tr>
+        <td><div class="main">${esc(u.nombre)}${u.id === S.yo ? ' (tú)' : ''}</div><div class="small">${esc(u.email)}${u.vinculado ? ' · compartido con otras apps' : ''}</div></td>
+        <td>${chip(ROLE_LABEL[u.rol] || u.rol, u.rol)}</td>
+        <td><div class="chips">${u.rol === 'socios' ? chip('Todas') : (u.sucursales.length ? u.sucursales.map((s) => chip(sucNombre(s))).join('') : chip('Ninguna', 'off'))}</div></td>
+        <td>${u.activo ? chip('Activo', 'ok') : chip('Desactivado', 'off')}</td>
+        <td><div class="actions">
+          <button class="ghost sm" data-edit="${esc(u.id)}">Editar</button>
+          <button class="ghost sm" data-toggle="${esc(u.id)}">${u.activo ? 'Desactivar' : 'Activar'}</button>
+          <button class="danger sm" data-del="${esc(u.id)}">Eliminar</button>
+        </div></td></tr>`).join('')}</tbody></table>` : '<div class="empty">Todavía no hay usuarios. Crea el primero con “Nuevo usuario”.</div>'}</div>
+    <p class="msg" id="userMsg"></p>`;
+  document.getElementById('newUser').onclick = () => openUser(null);
+  p.querySelectorAll('[data-edit]').forEach((b) => b.onclick = () => openUser(S.users.find((u) => u.id === b.dataset.edit)));
+  p.querySelectorAll('[data-toggle]').forEach((b) => b.onclick = () => toggleUser(S.users.find((u) => u.id === b.dataset.toggle)));
+  p.querySelectorAll('[data-del]').forEach((b) => b.onclick = () => deleteUser(S.users.find((u) => u.id === b.dataset.del)));
+}
+function say(id, text, ok) { const el = document.getElementById(id); if (el) { el.textContent = text; el.className = 'msg ' + (ok ? 'ok' : 'err'); } }
 
-  tiersEl.querySelectorAll('button').forEach(btn => {
-    btn.addEventListener('click', () => updatePassword(btn.dataset.tier));
+function openUser(u) {
+  const f = document.getElementById('formUser');
+  const edit = !!u;
+  f.innerHTML = `
+    <h2>${edit ? 'Editar usuario' : 'Nuevo usuario'}</h2>
+    <div class="f"><label class="t">Nombre</label><input type="text" name="nombre" required value="${esc(u ? u.nombre : '')}"></div>
+    <div class="f"><label class="t">Correo</label><input type="email" name="email" required ${edit ? 'readonly' : ''} value="${esc(u ? u.email : '')}"></div>
+    <div class="f"><label class="t">Rol</label><select name="rol">${S.roles.map((r) => `<option value="${r}" ${u && u.rol === r ? 'selected' : ''}>${ROLE_LABEL[r]}</option>`).join('')}</select></div>
+    <div class="f"><label class="t">Sucursales</label><div class="checks">${checks('suc', S.sucursales.map((s) => ({ v: s.codigo, t: s.nombre })), u ? u.sucursales : [])}</div>
+      <div class="help">Los socios ven todas las sucursales sin importar lo que marques aquí.</div></div>
+    <div class="f"><label class="t">${edit ? 'Nueva contraseña (opcional)' : 'Contraseña inicial'}</label>
+      <input type="password" name="password" autocomplete="new-password" minlength="8" ${edit ? '' : 'required'} placeholder="Mínimo 8 caracteres">
+      <div class="help">${edit ? 'Déjala vacía para no cambiarla.' : 'Entrégala a la persona; podrá cambiarla desde “Mi contraseña”. Si el correo ya existe en Supabase por otra app, se vincula y se respeta su contraseña actual.'}</div></div>
+    <p class="msg" id="dlgUserMsg"></p>
+    <div class="dlg-actions"><button type="button" class="ghost" id="cancelUser">Cancelar</button><button type="submit" id="saveUser">Guardar</button></div>`;
+  const dlg = document.getElementById('dlgUser');
+  dlg.showModal();
+  document.getElementById('cancelUser').onclick = () => dlg.close();
+  f.onsubmit = async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('saveUser'); btn.disabled = true;
+    const body = { nombre: f.nombre.value.trim(), rol: f.rol.value, sucursales: picked(f, 'suc') };
+    try {
+      if (edit) {
+        body.id = u.id; if (f.password.value) body.password = f.password.value;
+        if (body.password && u.vinculado && !confirm('Este usuario también entra a otras apps con esa contraseña. ¿Cambiarla aquí la cambia para todas?')) { btn.disabled = false; return; }
+        await api('/api/admin-users', { method: 'PATCH', body });
+      } else {
+        body.email = f.email.value.trim(); body.password = f.password.value;
+        const r = await api('/api/admin-users', { method: 'POST', body });
+        if (r.vinculado) alert('Ese correo ya existía en Supabase (otra app). Se vinculó al portal y conserva su contraseña actual.');
+      }
+      dlg.close(); await loadUsers(); render(); say('userMsg', 'Guardado.', true);
+    } catch (err) { say('dlgUserMsg', err.message, false); btn.disabled = false; }
+  };
+}
+async function toggleUser(u) {
+  if (u.activo && !confirm(`¿Desactivar a ${u.nombre}? Perderá el acceso de inmediato.`)) return;
+  try { await api('/api/admin-users', { method: 'PATCH', body: { id: u.id, activo: !u.activo } }); await loadUsers(); render(); say('userMsg', u.activo ? 'Usuario desactivado.' : 'Usuario activado.', true); }
+  catch (err) { say('userMsg', err.message, false); }
+}
+async function deleteUser(u) {
+  const extra = u.vinculado ? ' (solo se le quita el acceso al portal; su usuario sigue existiendo para otras apps)' : ' Esta acción no se puede deshacer.';
+  if (!confirm(`¿Eliminar a ${u.nombre}?${extra}`)) return;
+  try { await api('/api/admin-users?id=' + encodeURIComponent(u.id), { method: 'DELETE' }); await loadUsers(); render(); say('userMsg', 'Usuario eliminado.', true); }
+  catch (err) { say('userMsg', err.message, false); }
+}
+
+/* ---------- Aplicaciones ---------- */
+function renderApps(p) {
+  p.innerHTML = `
+    <div class="toolbar"><span class="hint">${S.apps.length} aplicación(es) en el catálogo · las cambias aquí, sin tocar código</span><button id="newApp">+ Nueva aplicación</button></div>
+    <div class="card">${S.apps.length ? `<table><thead><tr><th>Aplicación</th><th>Estado</th><th>Roles que la ven</th><th>Sucursales</th><th></th></tr></thead><tbody>
+      ${S.apps.map((a) => `<tr>
+        <td><div class="main">${esc(a.nombre)}</div><div class="small">${esc(a.descripcion)}</div></td>
+        <td>${chip(ESTADO_LABEL[a.estado] || a.estado, a.estado === 'disponible' ? 'ok' : 'off')}<div class="small">Orden ${esc(a.orden)}</div></td>
+        <td><div class="chips">${(a.roles_autorizados || []).length ? a.roles_autorizados.map((r) => chip(ROLE_LABEL[r] || r, r)).join('') : chip('Nadie', 'off')}</div></td>
+        <td><div class="chips">${(a.sucursales_autorizadas || []).length ? a.sucursales_autorizadas.map((s) => chip(sucNombre(s))).join('') : chip('Todas')}</div></td>
+        <td><div class="actions"><button class="ghost sm" data-editapp="${esc(a.id)}">Editar</button></div></td></tr>`).join('')}</tbody></table>` : '<div class="empty">No hay aplicaciones en el catálogo. ¿Ya corriste el SQL de la Fase A?</div>'}</div>
+    <p class="msg" id="appMsg"></p>`;
+  document.getElementById('newApp').onclick = () => openApp(null);
+  p.querySelectorAll('[data-editapp]').forEach((b) => b.onclick = () => openApp(S.apps.find((a) => a.id === b.dataset.editapp)));
+}
+function openApp(a) {
+  const f = document.getElementById('formApp');
+  const edit = !!a;
+  f.innerHTML = `
+    <h2>${edit ? 'Editar aplicación' : 'Nueva aplicación'}</h2>
+    ${edit ? '' : '<div class="f"><label class="t">Identificador</label><input type="text" name="id" required pattern="[a-z0-9][a-z0-9\\-]{1,60}" placeholder="ej. solicitudes-compras"><div class="help">Solo minúsculas, números y guiones. No se puede cambiar después.</div></div>'}
+    <div class="f"><label class="t">Nombre</label><input type="text" name="nombre" required value="${esc(a ? a.nombre : '')}"></div>
+    <div class="f"><label class="t">Descripción</label><input type="text" name="descripcion" value="${esc(a ? a.descripcion : '')}"></div>
+    <div class="f"><label class="t">URL de acceso</label><input type="url" name="url" required placeholder="https://" value="${esc(a ? a.url : '')}"></div>
+    <div class="f"><label class="t">Estado</label><select name="estado">${S.estados.map((e) => `<option value="${e}" ${a && a.estado === e ? 'selected' : ''}>${ESTADO_LABEL[e]}</option>`).join('')}</select>
+      <div class="help">Solo las “Disponible” aparecen en el portal de los usuarios.</div></div>
+    <div class="f"><label class="t">Orden</label><input type="number" name="orden" step="1" value="${esc(a ? a.orden : 0)}"></div>
+    <div class="f"><label class="t">Módulo (opcional)</label><input type="text" name="modulo" placeholder="Se usará en Cofki OS" value="${esc(a && a.modulo ? a.modulo : '')}"></div>
+    <div class="f"><label class="t">Roles que la ven</label><div class="checks">${checks('rol', S.roles.map((r) => ({ v: r, t: ROLE_LABEL[r] })), a ? a.roles_autorizados : [])}</div>
+      <div class="help">Cada rol se marca por separado: no hay jerarquía automática.</div></div>
+    <div class="f"><label class="t">Sucursales autorizadas</label><div class="checks">${checks('suc', S.sucursales.map((s) => ({ v: s.codigo, t: s.nombre })), a ? a.sucursales_autorizadas : [])}</div>
+      <div class="help">Sin marcar ninguna = todas las sucursales. Los socios la ven siempre.</div></div>
+    <p class="msg" id="dlgAppMsg"></p>
+    <div class="dlg-actions"><button type="button" class="ghost" id="cancelApp">Cancelar</button><button type="submit" id="saveApp">Guardar</button></div>`;
+  const dlg = document.getElementById('dlgApp');
+  dlg.showModal();
+  document.getElementById('cancelApp').onclick = () => dlg.close();
+  f.onsubmit = async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('saveApp'); btn.disabled = true;
+    const body = { nombre: f.nombre.value.trim(), descripcion: f.descripcion.value.trim(), url: f.url.value.trim(), estado: f.estado.value, orden: f.orden.value, modulo: f.modulo.value.trim(), roles_autorizados: picked(f, 'rol'), sucursales_autorizadas: picked(f, 'suc') };
+    try {
+      if (edit) { body.id = a.id; await api('/api/admin-apps', { method: 'PUT', body }); }
+      else { body.id = f.id.value.trim().toLowerCase(); await api('/api/admin-apps', { method: 'POST', body }); }
+      dlg.close(); await loadApps(); render(); say('appMsg', 'Guardado.', true);
+    } catch (err) { say('dlgAppMsg', err.message, false); btn.disabled = false; }
+  };
+}
+
+/* ---------- Auditoría ---------- */
+function renderAudit(p) {
+  p.innerHTML = `<div class="toolbar"><span class="hint">Últimos ${S.eventos.length} cambios</span></div>
+    <div class="card">${S.eventos.length ? `<table><thead><tr><th>Fecha</th><th>Quién</th><th>Acción</th><th>Sobre</th><th>Detalle</th></tr></thead><tbody>
+      ${S.eventos.map((e) => `<tr><td>${esc(new Date(e.fecha).toLocaleString('es-MX'))}</td><td>${esc(e.actor)}</td><td>${esc(e.accion.replace(/_/g, ' '))}</td><td>${esc(e.objetivo || '')}</td><td class="small">${esc(JSON.stringify(e.detalle || {}).slice(0, 140))}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">Sin movimientos todavía.</div>'}</div>`;
+}
+
+/* ---------- Contraseñas por nivel (temporal) ---------- */
+function renderNiveles(p) {
+  p.innerHTML = `<p class="sub">Acceso temporal por contraseña compartida. Se apaga con LEGACY_LOGIN=off cuando todos tengan usuario.</p>` +
+    LEGACY_TIERS.map((t) => `<div class="tier-card"><p class="tier-name">${t}</p><p class="tier-updated">Contraseña compartida del nivel</p>
+      <div class="row"><input type="text" id="pw-${t}" placeholder="Nueva contraseña (mín. 8 caracteres)"><button data-tier="${t}">Actualizar</button></div><p class="msg" id="msg-${t}"></p></div>`).join('');
+  p.querySelectorAll('[data-tier]').forEach((b) => b.onclick = async () => {
+    const t = b.dataset.tier; const input = document.getElementById('pw-' + t);
+    if (input.value.length < 8) return say('msg-' + t, 'Mínimo 8 caracteres.', false);
+    b.disabled = true;
+    try { await api('/api/change-password', { method: 'POST', body: { tier: t, newPassword: input.value } }); input.value = ''; say('msg-' + t, 'Actualizada correctamente.', true); }
+    catch (err) { say('msg-' + t, err.message, false); }
+    b.disabled = false;
   });
 }
 
-async function updatePassword(tier) {
-  const input = document.getElementById(`pw-${tier}`);
-  const msg = document.getElementById(`msg-${tier}`);
-  const btn = document.querySelector(`button[data-tier="${tier}"]`);
-  const newPassword = input.value;
-
-  msg.textContent = '';
-  msg.className = 'msg';
-
-  if (newPassword.length < 8) {
-    msg.textContent = 'Mínimo 8 caracteres.';
-    msg.className = 'msg err';
-    return;
-  }
-
-  btn.disabled = true;
-  btn.textContent = 'Guardando...';
-
-  try {
-    const res = await fetch('/api/change-password', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tier, newPassword }),
-    });
-    const data = await res.json();
-
-    if (!res.ok) {
-      msg.textContent = data.error || 'Error al actualizar';
-      msg.className = 'msg err';
-    } else {
-      msg.textContent = 'Actualizada correctamente.';
-      msg.className = 'msg ok';
-      input.value = '';
-    }
-  } catch (err) {
-    msg.textContent = 'Error de conexión.';
-    msg.className = 'msg err';
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Actualizar';
-  }
-}
-
-init();
+init().catch((e) => { if (e.message !== '401') main.innerHTML = '<div class="denied">No se pudo cargar: ' + esc(e.message) + '</div>'; });
 </script>
 </body>
 </html>

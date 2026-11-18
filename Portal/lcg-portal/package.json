@@ -2,7 +2,7 @@
   "name": "lcg-portal",
   "version": "1.0.0",
   "private": true,
-  "description": "Portal interno LCG / MSS / Cofki Café con acceso por nivel (socios, gerentes, equipo)",
+  "description": "Portal interno Cofki Café con usuarios individuales (Supabase), roles y sucursales",
   "dependencies": {
     "@netlify/blobs": "^8.1.0"
   }

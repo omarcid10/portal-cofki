@@ -61,6 +61,14 @@
     background:var(--pastel-teal);
     color:#00695C;
   }
+  @media (max-width:640px){
+    header{ padding:14px 16px; flex-wrap:wrap; gap:10px; }
+    .actions{ flex-wrap:wrap; gap:8px; }
+    main{ padding:28px 16px 60px; }
+    a.link-btn, button.link-btn{ padding:7px 11px; font-size:12px; }
+  }
+  .user-name{ font-size:13px; font-weight:600; color:var(--seal); }
+  @media (max-width:640px){ .user-name{ display:none; } }
   .role-pill.gerentes{ background:var(--pastel-orange); color:#B8620B; }
   .role-pill.lideres{ background:#E0E0E0; color:#424242; }
   .role-pill.socios{ background:var(--pastel-red); color:#C62828; }
@@ -185,14 +193,16 @@
     <span class="brand-text">Portal Cofki</span>
   </div>
   <div class="actions">
+    <span class="user-name" id="userName"></span>
     <span class="role-pill" id="rolePill">···</span>
-    <a class="link-btn" id="adminLink" href="/admin.html" style="display:none;">Administrar contraseñas</a>
+    <a class="link-btn" id="adminLink" href="/admin.html" style="display:none;">Administrar</a>
+    <a class="link-btn" id="accountLink" href="/cuenta.html" style="display:none;">Mi contraseña</a>
     <button class="link-btn" id="logoutBtn">Cerrar sesión</button>
   </div>
 </header>
 <main>
   <h1>Tus herramientas</h1>
-  <p class="sub">Apps disponibles según tu nivel de acceso.</p>
+  <p class="sub">Apps disponibles según tu acceso.</p>
   <div class="search-wrap">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9E9E9E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="11" cy="11" r="8"></circle>
@@ -204,21 +214,23 @@
 </main>
 
 <script>
-const ROLE_LABEL = { socios: 'Socios', lideres: 'Líderes', gerentes: 'Gerentes', equipo: 'Equipo' };
+const PILL_CLASS = { socios: 'socios', lideres: 'lideres', gerentes: 'gerentes', supervisores: 'gerentes' };
+const esc = (t) => String(t == null ? '' : t).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const safeUrl = (u) => (/^https:\/\//i.test(u) ? u : '#');
 let allApps = [];
 
 function renderApps(apps) {
   const content = document.getElementById('content');
   if (!apps.length) {
     content.className = 'empty';
-    content.textContent = allApps.length ? 'No hay apps que coincidan con tu búsqueda.' : 'No hay apps configuradas todavía para tu nivel.';
+    content.textContent = allApps.length ? 'No hay apps que coincidan con tu búsqueda.' : 'No tienes apps asignadas todavía. Pide a un socio que revise tu acceso.';
     return;
   }
   content.className = 'grid';
   content.innerHTML = apps.map(app => `
-    <a class="app-card ${app.minTier || ''}" href="${app.url}" target="_blank" rel="noopener">
-      <p class="app-name">${app.name}</p>
-      <p class="app-desc">${app.description || ''}</p>
+    <a class="app-card ${esc(app.minTier || '')}" href="${esc(safeUrl(app.url))}" target="_blank" rel="noopener">
+      <p class="app-name">${esc(app.name)}</p>
+      <p class="app-desc">${esc(app.description || '')}</p>
       <span class="app-open">Abrir →</span>
     </a>
   `).join('');
@@ -234,13 +246,11 @@ async function load() {
     const data = await res.json();
 
     const rolePill = document.getElementById('rolePill');
-    rolePill.textContent = ROLE_LABEL[data.role] || data.role;
-    if (data.role === 'gerentes' || data.role === 'lideres' || data.role === 'socios') {
-      rolePill.classList.add(data.role);
-    }
-    if (data.role === 'socios') {
-      document.getElementById('adminLink').style.display = 'inline-block';
-    }
+    rolePill.textContent = data.roleLabel || data.role;
+    if (PILL_CLASS[data.role]) rolePill.classList.add(PILL_CLASS[data.role]);
+    if (data.nombre) document.getElementById('userName').textContent = data.nombre;
+    if (data.isAdmin) document.getElementById('adminLink').style.display = 'inline-block';
+    if (!data.legacy) document.getElementById('accountLink').style.display = 'inline-block';
 
     allApps = data.apps;
     renderApps(allApps);

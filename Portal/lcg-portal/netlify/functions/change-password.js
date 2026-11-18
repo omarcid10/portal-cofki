@@ -1,16 +1,16 @@
-const { ROLE_LEVEL, verify, parseCookies, hashPassword } = require('./lib/auth');
+const { ROLE_LEVEL, hashPassword } = require('./lib/auth');
 const { getConfig, saveConfig } = require('./lib/store');
+const { getSession } = require('./lib/session');
+const { safe } = require('./lib/http');
 
-exports.handler = async (event) => {
+exports.handler = safe(async (event) => {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method not allowed' };
   }
 
-  const cookies = parseCookies(event.headers.cookie);
-  const secret = process.env.SESSION_SECRET;
-  const session = verify(cookies.lcg_session, secret);
+  const session = await getSession(event);
 
-  if (!session || session.role !== 'socios') {
+  if (!session || !session.legacy || session.role !== 'socios') {
     return { statusCode: 403, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ error: 'No autorizado. Solo socios puede cambiar contraseñas.' }) };
   }
 
@@ -36,4 +36,4 @@ exports.handler = async (event) => {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ ok: true, tier, updatedAt: config[tier].updatedAt }),
   };
-};
+});
